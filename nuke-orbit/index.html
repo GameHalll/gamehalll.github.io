@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>NUKE ORBIT</title>
+  <meta name="description" content="Launch a cartoon nuke as far as possible. Upgrade, unlock, repeat." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100'%3E%3Ccircle r='48' fill='%23ffd23f'/%3E%3Cellipse rx='42' ry='15' transform='rotate(-24)' fill='none' stroke='%231f1b4d' stroke-width='8'/%3E%3Ccircle r='22' fill='%231f1b4d'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="style.css?v=3" />
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- ============================ HUD ============================ -->
+  <div id="hud" class="hidden">
+    <div class="hud-left">
+      <div class="hud-dist"><span id="hudDist">0</span><small>m</small></div>
+      <div class="hud-best">BEST <span id="hudBest">0</span>m</div>
+    </div>
+    <div class="upg-cards hidden" id="upgCards"></div>
+    <div class="hud-right">
+      <div class="chip coin-chip" id="hudCoinChip"><i class="coin"></i><span id="hudCoins">0</span></div>
+      <div class="chip"><b>SPEED</b><span id="hudSpeed">0</span> km/h</div>
+      <div class="chip"><b>ALT</b><span id="hudAlt">0</span> m</div>
+      <div class="chip"><b>POWER</b><span id="hudPower">–</span></div>
+    </div>
+    <div class="hud-bottom">
+      <button class="btn small ghost" id="btnHome" data-action="menu">☰ MENU</button>
+      <button class="btn small ghost" id="btnFast">⏩ FAST</button>
+    </div>
+    <div id="aimHint">TAP / CLICK / <kbd>SPACE</kbd> TO LAUNCH!<small>Stop the meter in the white zone for a PERFECT launch</small></div>
+  </div>
+
+  <div id="banner" class="hidden"><div class="banner-title"></div><div class="banner-sub"></div></div>
+
+  <!-- ========================= MAIN MENU ========================= -->
+  <section id="screen-menu" class="screen">
+    <div class="menu-wrap">
+      <h1 class="logo"><span class="l1">NUKE</span><span class="l2">ORBIT</span><em><svg class="emblem" viewBox="-50 -50 100 100" aria-hidden="true"><circle r="48" fill="#ffd23f"/><g transform="rotate(-24)"><path d="M -42 0 A 42 15 0 0 1 42 0" fill="none" stroke="#1f1b4d" stroke-width="7" stroke-linecap="round"/></g><circle r="22" fill="#1f1b4d"/><circle cx="-7" cy="-7" r="6" fill="#ffffff" opacity=".35"/><g transform="rotate(-24)"><path d="M 42 0 A 42 15 0 0 1 -42 0" fill="none" stroke="#1f1b4d" stroke-width="7" stroke-linecap="round"/><circle r="7" fill="#e8475b"><animateMotion dur="2.4s" repeatCount="indefinite" path="M 42 0 A 42 15 0 0 1 -42 0 A 42 15 0 0 1 42 0"/></circle></g></svg></em></h1>
+      <p class="tagline">How far can a bad idea go?</p>
+      <div class="stat-row">
+        <div class="stat"><b>BEST</b><span id="menuBest">0 m</span></div>
+        <div class="stat"><b>COINS</b><span id="menuCoins"><i class="coin"></i>0</span></div>
+        <div class="stat"><b>WORLD</b><span id="menuWorld">Countryside</span></div>
+      </div>
+      <button class="btn play" data-action="play">▶ PLAY</button>
+      <div class="menu-grid">
+        <button class="btn" data-action="shop">⚙️ UPGRADES<span class="badge hidden" id="shopBadge">!</span></button>
+        <button class="btn" data-action="chars">🧑‍✈️ CHARACTERS</button>
+        <button class="btn" data-action="bombs">💣 BOMBS</button>
+        <button class="btn" data-action="worlds">🌍 WORLDS</button>
+      </div>
+      <div class="menu-foot">
+        <button class="btn tiny ghost" id="btnMute">🔊 SOUND ON</button>
+        <button class="btn tiny ghost" data-action="reset">↺ RESET SAVE</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== RESULTS ========================== -->
+  <section id="screen-results" class="screen hidden">
+    <div class="panel results">
+      <div class="res-title" id="resTitle">KA-BOOM!</div>
+      <div class="res-record hidden" id="resRecord">★ NEW RECORD! ★</div>
+      <div class="res-dist"><span id="resDist">0</span><small>m</small></div>
+      <div class="res-sub" id="resSub"></div>
+      <table class="res-table">
+        <tr><td>Distance coins</td><td id="resDistCoins">0</td></tr>
+        <tr><td>Collected coins</td><td id="resCollected">0</td></tr>
+        <tr><td>Milestone bonus</td><td id="resMs">0</td></tr>
+        <tr id="resOrbitRow" class="hidden"><td>🪐 Orbit bonus</td><td id="resOrbit">0</td></tr>
+        <tr><td>World multiplier</td><td id="resMult">x1</td></tr>
+        <tr class="total"><td>COINS EARNED</td><td id="resTotal">0</td></tr>
+      </table>
+      <div class="res-foot">
+        <div><b>PERSONAL BEST</b><span id="resBest">0 m</span></div>
+        <div><b>TOTAL COINS</b><span id="resCoins">0</span></div>
+      </div>
+      <div class="res-orbit" id="resOrbitHint"></div>
+      <div class="res-unlock hidden" id="resUnlock"></div>
+      <div class="res-hint" id="resHint"></div>
+      <div class="btn-row">
+        <button class="btn play" data-action="retry">↻ LAUNCH AGAIN</button>
+        <button class="btn" data-action="shop">⚙️ UPGRADES</button>
+        <button class="btn ghost" data-action="menu">☰ MENU</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================== SHOP ============================ -->
+  <section id="screen-shop" class="screen hidden">
+    <div class="panel wide">
+      <header class="panel-head">
+        <h2>UPGRADE SHOP</h2>
+        <div class="chip big"><i class="coin"></i><span class="coins-now">0</span></div>
+      </header>
+      <div class="shop-grid" id="shopGrid"></div>
+      <div class="btn-row"><button class="btn ghost" data-action="back">← BACK</button><button class="btn play" data-action="retry">▶ LAUNCH</button></div>
+    </div>
+  </section>
+
+  <!-- ======================== CHARACTERS ========================= -->
+  <section id="screen-chars" class="screen hidden">
+    <div class="panel wide">
+      <header class="panel-head">
+        <h2>CHARACTERS</h2>
+        <div class="chip big"><i class="coin"></i><span class="coins-now">0</span></div>
+      </header>
+      <p class="note">Purely cosmetic — every launcher is equally irresponsible.</p>
+      <div class="card-grid" id="charGrid"></div>
+      <div class="btn-row"><button class="btn ghost" data-action="back">← BACK</button></div>
+    </div>
+  </section>
+
+  <!-- =========================== BOMBS =========================== -->
+  <section id="screen-bombs" class="screen hidden">
+    <div class="panel wide">
+      <header class="panel-head">
+        <h2>BOMB SKINS</h2>
+        <div class="chip big"><i class="coin"></i><span class="coins-now">0</span></div>
+      </header>
+      <p class="note">Cosmetic only. Same boom, more style.</p>
+      <div class="card-grid" id="bombGrid"></div>
+      <div class="btn-row"><button class="btn ghost" data-action="back">← BACK</button></div>
+    </div>
+  </section>
+
+  <!-- =========================== WORLDS ========================== -->
+  <section id="screen-worlds" class="screen hidden">
+    <div class="panel wide">
+      <header class="panel-head">
+        <h2>WORLDS</h2>
+        <div class="chip big">BEST <span id="worldsBest">0 m</span></div>
+      </header>
+      <p class="note">Unlock new launch sites by beating distance records. Exotic worlds pay more coins!</p>
+      <div class="card-grid worlds" id="worldGrid"></div>
+      <div class="btn-row"><button class="btn ghost" data-action="back">← BACK</button></div>
+    </div>
+  </section>
+
+  <!-- ========================== CONFIRM ========================== -->
+  <section id="screen-confirm" class="screen hidden">
+    <div class="panel">
+      <h2>RESET ALL PROGRESS?</h2>
+      <p class="note">Coins, upgrades, skins and records will be wiped. This can't be undone.</p>
+      <div class="btn-row"><button class="btn ghost" data-action="back">CANCEL</button><button class="btn danger" data-action="confirmReset">RESET</button></div>
+    </div>
+  </section>
+
+  <div id="toast" class="hidden"></div>
+
+  <script src="js/data.js?v=3"></script>
+  <script src="js/save.js?v=3"></script>
+  <script src="js/art.js?v=3"></script>
+  <script src="js/ui.js?v=3"></script>
+  <script src="js/game.js?v=3"></script>
+  <script src="js/main.js?v=3"></script>
+</body>
+</html>

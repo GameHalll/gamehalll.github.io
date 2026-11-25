@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Die Spielhalle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root{
+  --cream:#fff6e6; --paper:#fffdf8; --ink:#2b1b3d; --soft:#6b5a7a;
+  --sun:#ffcf4a; --sun-d:#c98e1e; --coral:#ff6b6b; --coral-d:#c94545;
+  --mint:#37d6c0; --mint-d:#1f9c8b; --sky:#5aa9ff; --grape:#8f6bff;
+  --r:22px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); font-family:Nunito,system-ui,sans-serif;
+  background:var(--cream);
+  background-image:radial-gradient(#f1dfbf 1.6px,transparent 1.7px);
+  background-size:26px 26px;
+  min-height:100vh; overflow-x:hidden;
+}
+h1,h2,h3,.btn,.chip{font-family:Fredoka,Nunito,system-ui,sans-serif}
+
+/* ---------- hero ---------- */
+header{position:relative; padding:64px 20px 40px; text-align:center; overflow:hidden}
+.blob{position:absolute; border-radius:50%; opacity:.9; animation:float 9s ease-in-out 2}
+.b1{width:120px;height:120px;background:var(--sun);left:6%;top:40px}
+.b2{width:70px;height:70px;background:var(--mint);right:10%;top:70px;animation-delay:-3s}
+.b3{width:46px;height:46px;background:var(--coral);left:18%;bottom:20px;animation-delay:-5s}
+.b4{width:90px;height:90px;background:var(--grape);right:4%;bottom:-20px;opacity:.55;animation-delay:-1s}
+.shape{position:absolute; font-family:Fredoka; font-weight:700; font-size:34px; color:var(--ink); opacity:.16; animation:spin 18s linear 1}
+@keyframes float{50%{transform:translateY(-14px) scale(1.04)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.badge{display:inline-block; background:var(--ink); color:var(--sun); font-weight:800; font-size:14px; letter-spacing:.14em; text-transform:uppercase; padding:8px 16px; border-radius:99px; transform:rotate(-2deg); position:relative}
+h1{position:relative; font-size:clamp(52px,10vw,112px); line-height:.92; margin:18px 0 14px; font-weight:700; letter-spacing:-2px}
+h1 .w{display:inline-block; transform:rotate(-3deg)}
+h1 .w2{color:var(--coral); transform:rotate(2deg); text-shadow:0 6px 0 var(--ink)}
+h1 .w1{text-shadow:0 6px 0 var(--sun)}
+.lead{position:relative; max-width:560px; margin:0 auto; font-size:clamp(17px,2.2vw,21px); color:var(--soft); line-height:1.5}
+.hero-actions{position:relative; margin-top:28px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap}
+
+.btn{
+  --c:var(--sun);
+  display:inline-flex; align-items:center; gap:10px; border:3px solid var(--ink);
+  background:var(--c); color:var(--ink); font-weight:700; font-size:19px; text-decoration:none;
+  padding:12px 24px; border-radius:16px; box-shadow:0 6px 0 var(--ink); cursor:pointer;
+  transition:transform .12s, box-shadow .12s;
+}
+.btn:hover{transform:translateY(-2px); box-shadow:0 8px 0 var(--ink)}
+.btn:active{transform:translateY(5px); box-shadow:0 1px 0 var(--ink)}
+.btn.mint{--c:var(--mint)}
+.btn:focus-visible,.chip:focus-visible{outline:4px solid var(--sky); outline-offset:3px}
+
+/* ---------- filter ---------- */
+.bar{max-width:1180px; margin:10px auto 26px; padding:0 20px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center}
+.chip{border:3px solid var(--ink); background:var(--paper); color:var(--ink); font-weight:600; font-size:16px; padding:8px 16px; border-radius:99px; cursor:pointer; transition:transform .12s, background .12s}
+.chip:hover{transform:translateY(-2px) rotate(-2deg)}
+.chip[aria-pressed="true"]{background:var(--ink); color:var(--sun)}
+.count{font-weight:800; color:var(--soft); margin-left:6px; font-size:15px}
+
+/* ---------- grid ---------- */
+main{max-width:1180px; margin:0 auto; padding:0 20px 40px}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:30px}
+.card{
+  position:relative; background:var(--paper); border:3px solid var(--ink); border-radius:var(--r);
+  box-shadow:0 8px 0 var(--ink); overflow:hidden; display:flex; flex-direction:column;
+  transform:rotate(var(--tilt,0deg)); transition:transform .22s cubic-bezier(.3,1.6,.5,1), box-shadow .22s;
+}
+.card:nth-child(3n+1){--tilt:-1.2deg}
+.card:nth-child(3n+2){--tilt:.9deg}
+.card:nth-child(3n){--tilt:-.5deg}
+.card.rec{box-shadow:0 8px 0 var(--ink), 0 0 0 6px var(--sun)}
+.card:hover,.card:focus-within{transform:rotate(0) translateY(-6px) scale(1.02); box-shadow:0 14px 0 var(--ink); z-index:2}
+.card.rec:hover,.card.rec:focus-within{box-shadow:0 14px 0 var(--ink), 0 0 0 6px var(--sun)}
+.card.hide{display:none}
+.card.pulse{animation:pulse .9s ease 2}
+@keyframes pulse{50%{transform:rotate(0) scale(1.05); box-shadow:0 14px 0 var(--coral)}}
+
+/* cover + hover video */
+.art{position:relative; aspect-ratio:16/9; border-bottom:3px solid var(--ink); overflow:hidden; background:var(--ink)}
+.art img,.art video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block}
+.art img{transition:transform .6s ease}
+.card:hover .art img{transform:scale(1.05)}
+.art video{opacity:0; transition:opacity .35s ease}
+.card.playing .art video{opacity:1}
+.timer{position:absolute; left:0; bottom:0; height:6px; width:100%; background:var(--sun); transform-origin:left; transform:scaleX(0); border-top:2px solid var(--ink)}
+.card.arming .timer{transform:scaleX(1); transition:transform 2s linear}
+.card.playing .timer{opacity:0}
+.hint{position:absolute; left:12px; bottom:14px; background:rgba(43,27,61,.82); color:#fff; font-weight:800; font-size:13px; padding:5px 11px; border-radius:99px; opacity:0; transform:translateY(6px); transition:.2s}
+.card.arming .hint{opacity:1; transform:none}
+.card.playing .hint{opacity:0}
+
+.tagnew{position:absolute; top:12px; right:-34px; transform:rotate(35deg); background:var(--coral); color:#fff; font-family:Fredoka; font-weight:700; padding:4px 40px; font-size:14px; border-block:3px solid var(--ink); z-index:2}
+.recbadge{position:absolute; top:10px; left:10px; z-index:2; background:var(--sun); color:var(--ink); border:3px solid var(--ink); border-radius:12px; padding:4px 11px; font-family:Fredoka; font-weight:700; font-size:15px; transform:rotate(-5deg); box-shadow:0 3px 0 var(--ink)}
+.card:hover .recbadge{animation:wiggle .5s ease}
+@keyframes wiggle{25%{transform:rotate(4deg) scale(1.08)}60%{transform:rotate(-8deg)}}
+
+.body{padding:18px 20px 20px; display:flex; flex-direction:column; gap:10px; flex:1}
+.card h3{margin:0; font-size:27px; line-height:1; font-weight:700}
+.card p{margin:0; color:var(--soft); line-height:1.45; font-size:16px}
+.tags{display:flex; flex-wrap:wrap; gap:6px}
+.tags span{font-size:13px; font-weight:800; padding:3px 10px; border-radius:99px; border:2px solid var(--ink); background:var(--cream)}
+.keys{font-size:13.5px; color:var(--soft); background:var(--cream); border-radius:12px; padding:8px 11px; line-height:1.45}
+.keys b{color:var(--ink)}
+.note{font-size:13.5px; font-weight:700; color:var(--coral-d)}
+.foot{margin-top:auto; padding-top:6px; display:flex; align-items:center; justify-content:space-between; gap:10px}
+.foot .btn{font-size:18px; padding:9px 20px}
+.players{font-weight:800; font-size:14px; color:var(--soft)}
+
+.empty{display:none; text-align:center; font-size:20px; color:var(--soft); padding:40px}
+footer{text-align:center; padding:40px 20px 60px; color:var(--soft); font-weight:700}
+footer .heart{color:var(--coral)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important; transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+  <div class="shape" style="left:30%;top:30px">✦</div>
+  <div class="shape" style="right:24%;bottom:30px;animation-duration:12s">▲</div>
+  <div class="shape" style="left:8%;bottom:70px;animation-duration:22s">●</div>
+  <span class="badge">10 Spiele · alles selbst gebaut</span>
+  <h1><span class="w w1">Die</span> <span class="w w2">Spielhalle</span></h1>
+  <p class="lead">Wellen, Flugzeuge, Drifts, Cocktails und wackelige Schießereien. Fahr mit der Maus über ein Spiel für eine Vorschau, klick auf Spielen und los geht's.</p>
+  <div class="hero-actions">
+    <a class="btn" href="#spiele">Alle Spiele ansehen</a>
+    <button class="btn mint" id="random" type="button">🎲 Überrasch mich</button>
+  </div>
+</header>
+
+<nav class="bar" aria-label="Filter">
+  <button class="chip" aria-pressed="true" data-f="all">Alle</button>
+  <button class="chip" aria-pressed="false" data-f="rec">⭐ Empfohlen</button>
+  <button class="chip" aria-pressed="false" data-f="race">Rennen</button>
+  <button class="chip" aria-pressed="false" data-f="action">Action</button>
+  <button class="chip" aria-pressed="false" data-f="chill">Chillig</button>
+  <button class="chip" aria-pressed="false" data-f="multi">Mit Freunden</button>
+  <span class="count" id="count"></span>
+</nav>
+
+<main id="spiele">
+  <div class="grid" id="grid">
+
+    <article class="card rec" data-cat="rec action multi" data-media="tsunami">
+      <div class="art"><img decoding="async" src="media/tsunami.jpg" alt="Tsunami Heist Startbildschirm"><span class="recbadge">⭐ Empfohlen</span><span class="tagnew">NEU</span><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="body">
+        <h3>Tsunami Heist</h3>
+        <p>Renn den Strand runter, schnapp dir ein seltenes Meme-Wesen und schaff's nach Hause, bevor die Welle kommt. Und pass auf: die anderen klauen.</p>
+        <div class="tags"><span>3D</span><span>Sammeln</span><span>Basis klauen</span></div>
+        <div class="keys"><b>WASD</b> laufen · <b>E</b> schnappen / klauen · <b>Klick</b> Schläger</div>
+        <div class="foot"><span class="players">1 Spieler + Bots</span><a class="btn" href="tsunami-heist/">Spielen ▶</a></div>
+      </div>
+    </article>
+
+    <article class="card rec" data-cat="rec chill" data-media="sky">
+      <div class="art"><img decoding="async" src="media/sky.jpg" alt="Sky Hustle Cover"><span class="recbadge">⭐ Empfohlen</span><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="body">
+        <h3>Sky Hustle</h3>
+        <p>Flieg Missionen über eine Insel, verdien Geld und kauf dir immer schnellere Flugzeuge. Starten, landen, Kasse machen.</p>
+        <div class="tags"><span>3D</span><span>Fliegen</span><span>Missionen</span></div>
+        <div class="keys"><b>Leertaste / Shift</b> Gas · <b>W S</b> Nase · <b>A D</b> rollen · <b>B</b> bremsen</div>
+        <div class="foot"><span class="players">1 Spieler</span><a class="btn" href="sky-hustle/">Spielen ▶</a></div>
+      </div>
+    </article>
+
+    <article class="card rec" data-cat="rec race multi" data-media="blind">
+      <div class="art"><img decoding="async" src="media/blind.jpg" alt="Blind Corner Cover"><span class="recbadge">⭐ Empfohlen</span><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="body">
+        <h3>Blind Corner</h3>
+        <p>Koop-Rallye ohne Bremsen: Einer fährt, der andere liest die Karte und sagt die Kurven an. Nur zusammen kommt ihr heil ins Ziel.</p>
+        <div class="tags"><span>3D</span><span>Rennen</span><span>Koop</span></div>
+        <div class="keys"><b>← →</b> lenken · <b>Leertaste</b> Handbremse · <b>M</b> Ton</div>
+        <div class="foot"><span class="players">1–2 Spieler</span><a class="btn" href="full-send/index.html">Spielen ▶</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="race" data-media="dirt">
+      <div class="art"><img decoding="async" src="media/dirt.jpg" alt="Dirt Angle Startbildschirm"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="body">
+        <h3>Dirt Angle</h3>
+        <p>Asphalt, Schotter und Waldwege. Fahr Etappe für Etappe, kette Drifts für den Multiplikator und kauf dir schnellere Autos in der Garage.</p>
+        <div class="tags"><span>3D</span><span>Rennen</span><span>Drift</span></div>
+        <div class="keys"><b>WASD</b> fahren · <b>Leertaste</b> Handbremse · <b>C</b> Kamera</div>
+        <div class="foot"><span class="players">1 Spieler</span><a class="btn" href="drift-game/">Spielen ▶</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="chill" data-media="lastcall">
+      <div class="art"><img decoding="async" src="media/lastcall.jpg" alt="Last Call Cover"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="body">
+        <h3>Last Call</h3>
+        <p>Du stehst hinter der Bar im vollsten Club der Stadt. Jeden Drink selbst einschenken, die Schlange abarbeiten, Trinkgeld stapeln.</p>
+        <div class="tags"><span>3D</span><span>Simulation</span><span>50+ Drinks</span></div>
+        <div class="keys"><b>Maus halten</b> einschenken · <b>F</b> shaken · <b>R</b> Rezepte</div>
+        <div class="foot"><span class="players">1 Spieler</span><a class="btn" href="last-call/">Spielen ▶</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="race" data-media="fullsend">
+      <div class="art"><img decoding="async" src="media/fullsend.jpg" alt="Full Send Cover"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="body">
+        <h3>Full Send</h3>
+        <p>Von oben: Kurven schneiden, mit der Handbremse driften und nie, wirklich nie, vom Gas gehen. Bloß nicht den Rand berühren.</p>
+        <div class="tags"><span>Rennen</span><span>Drift</span><span>Von oben</span></div>
+        <div class="keys"><b>← →</b> lenken · <b>Leertaste</b> driften</div>
+        <div class="foot"><span class="players">1 Spieler</span><a class="btn" href="full-send/topdown.html">Spielen ▶</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="chill" data-media="nuke">
+      <div class="art"><img decoding="async" src="media/nuke.jpg" alt="Nuke Orbit Startbildschirm"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="body">
+        <h3>Nuke Orbit</h3>
+        <p>Schieß eine Cartoon-Atombombe so weit wie möglich. Aufrüsten, freischalten, nochmal. Wie weit kommt eine schlechte Idee?</p>
+        <div class="tags"><span>Casual</span><span>Upgrades</span><span>Weitschuss</span></div>
+        <div class="keys"><b>Klick / Leertaste</b> starten · dann upgraden und nochmal</div>
+        <div class="foot"><span class="players">1 Spieler</span><a class="btn" href="nuke-orbit/">Spielen ▶</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="action multi" data-media="kickback">
+      <div class="art"><img decoding="async" src="media/kickback.jpg" alt="Kickback Startbildschirm"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="body">
+        <h3>Kickback</h3>
+        <p>Wackelige Schießereien, bei denen dich jeder Schuss nach hinten schubst. Solo gegen Wellen oder im Duell zu zweit.</p>
+        <div class="tags"><span>Action</span><span>Physik</span><span>Duell</span></div>
+        <div class="keys"><b>Maus</b> zielen · <b>Klick</b> schießen · <b>A D</b> watscheln</div>
+        <div class="foot"><span class="players">1–2 Spieler</span><a class="btn" href="kickback/">Spielen ▶</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="action multi" data-media="happylife">
+      <div class="art"><img decoding="async" src="media/happylife.jpg" alt="Happy Life Cover"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="body">
+        <h3>Happy Life</h3>
+        <p>Ein Online-Rennen für bis zu 3 Spieler. Alles ist darauf gebaut, dich zu beschützen. Du bist ein Crashtest-Dummy, und wer zuerst kaputtgeht, gewinnt.</p>
+        <div class="tags"><span>Jump'n'Run</span><span>Online</span><span>Splitscreen</span></div>
+        <div class="keys"><b>A D</b> laufen · <b>W</b> springen · <b>Shift</b> dashen</div>
+        <div class="foot"><span class="players">1–3 Spieler</span><a class="btn" href="happy-life/">Spielen ▶</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="multi action" data-media="debt">
+      <div class="art"><img decoding="async" src="media/debt.jpg" alt="House of Debt Lobby"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="body">
+        <h3>House of Debt</h3>
+        <p>Chaotisches Koop-Casino in 3D. Euer Team schuldet dem Haus 250.000 Punkte: Automaten knacken, Tagesziel schaffen, vier Etagen hochklettern. Nur Spielpunkte, kein echtes Geld.</p>
+        <div class="tags"><span>3D</span><span>Koop</span><span>Online</span></div>
+        <div class="note">Online-Version folgt – läuft nur lokal mit eigenem Spielserver.</div>
+        <div class="foot"><span class="players">1–6 Spieler</span><span class="btn" style="opacity:.5;pointer-events:none">Bald ▶</span></div>
+      </div>
+    </article>
+
+  </div>
+  <p class="empty" id="empty">Hier ist gerade nichts. Probier einen anderen Filter!</p>
+</main>
+
+<footer>Gebaut mit viel Kaffee und <span class="heart">♥</span> · Viel Spaß beim Zocken!</footer>
+
+<script>
+const cards=[...document.querySelectorAll('.card')];
+const chips=[...document.querySelectorAll('.chip')];
+const count=document.getElementById('count');
+function apply(f){
+  let n=0;
+  cards.forEach(c=>{const ok=f==='all'||c.dataset.cat.split(' ').includes(f); c.classList.toggle('hide',!ok); if(ok)n++;});
+  chips.forEach(ch=>ch.setAttribute('aria-pressed',ch.dataset.f===f));
+  count.textContent=n+(n===1?' Spiel':' Spiele');
+  document.getElementById('empty').style.display=n?'none':'block';
+}
+chips.forEach(ch=>ch.addEventListener('click',()=>apply(ch.dataset.f)));
+apply('all');
+
+/* hover 2 s -> gameplay clip */
+const HOVER_MS=2000;
+const canHover=matchMedia('(hover:hover)').matches;
+const calm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+let current=null;
+function stopCard(card){
+  card.classList.remove('arming','playing'); clearTimeout(card._t);
+  const v=card.querySelector('video'); if(v){ v.pause(); v.removeAttribute('src'); v.load(); v.remove(); }
+  if(current===card) current=null;
+}
+cards.forEach(card=>{
+  card.addEventListener('mouseenter',()=>{
+    if(!canHover||calm) return;
+    if(current&&current!==card) stopCard(current);
+    current=card; card.classList.add('arming');
+    card._t=setTimeout(()=>{
+      const v=document.createElement('video');
+      v.muted=true; v.loop=true; v.playsInline=true; v.preload='auto';
+      v.src='media/'+card.dataset.media+'.mp4';
+      card.querySelector('.art').insertBefore(v, card.querySelector('.art img').nextSibling);
+      v.addEventListener('playing',()=>card.classList.add('playing'),{once:true});
+      v.play().catch(()=>{});
+    }, HOVER_MS);
+  });
+  card.addEventListener('mouseleave',()=>stopCard(card));
+});
+
+document.getElementById('random').addEventListener('click',()=>{
+  const pool=cards.filter(c=>!c.classList.contains('hide'));
+  const pick=pool[Math.floor(Math.random()*pool.length)];
+  cards.forEach(c=>c.classList.remove('pulse'));
+  pick.scrollIntoView({behavior:'smooth',block:'center'});
+  void pick.offsetWidth; pick.classList.add('pulse');
+  pick.querySelector('.btn').focus({preventScroll:true});
+});
+</script>
+</body>
+</html>

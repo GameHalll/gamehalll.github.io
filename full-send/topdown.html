@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>FULL SEND</title>
+<style>
+  :root { --cream:#f6e7cb; --ink:#1b1724; --hot:#ffd23f; }
+  html,body { margin:0; height:100%; overflow:hidden; background:#e4572e; touch-action:none;
+    font-family:"Arial Black","Helvetica Neue",Impact,system-ui,sans-serif; color:var(--cream);
+    -webkit-user-select:none; user-select:none; }
+  canvas { position:fixed; inset:0; width:100%; height:100%; display:block; }
+  .hud { position:fixed; pointer-events:none; font-style:italic; text-transform:uppercase;
+    text-shadow:3px 3px 0 var(--ink); letter-spacing:.02em; }
+  #score { top:18px; left:22px; font-size:54px; line-height:1; }
+  #score small { display:block; font-size:14px; letter-spacing:.2em; opacity:.85; }
+  #speed { top:18px; right:22px; font-size:30px; text-align:right; line-height:1; }
+  #speed small { display:block; font-size:12px; letter-spacing:.2em; opacity:.85; }
+  #drift { left:50%; bottom:15%; transform:translateX(-50%) rotate(-4deg); font-size:34px; color:var(--hot);
+    opacity:0; transition:opacity .15s; white-space:nowrap; }
+  #overlay { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; pointer-events:none; font-style:italic; text-transform:uppercase; }
+  #title { font-size:clamp(64px,15vw,170px); line-height:.82; transform:rotate(-5deg);
+    text-shadow:6px 6px 0 var(--ink), 12px 12px 0 rgba(27,23,36,.35); }
+  #title span { color:var(--hot); display:block; }
+  #sub { margin-top:34px; font-size:clamp(14px,2.4vw,22px); letter-spacing:.16em; text-shadow:2px 2px 0 var(--ink); }
+  #sub b { color:var(--hot); }
+  #hint { margin-top:14px; font-size:clamp(11px,1.6vw,14px); letter-spacing:.2em; opacity:.9; text-shadow:2px 2px 0 var(--ink);
+    font-family:ui-monospace,Menlo,monospace; font-style:normal; font-weight:700; }
+  .blink { animation:blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity:.25; } }
+  .hidden { display:none !important; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="score" class="hud hidden">0<small>metres</small></div>
+<div id="speed" class="hud hidden">0<small>km/h</small></div>
+<div id="drift" class="hud"></div>
+<div id="overlay">
+  <div id="title">FULL<span>SEND</span></div>
+  <div id="sub" class="blink">press <b>space</b> to drive</div>
+  <div id="hint">← → steer &nbsp;·&nbsp; hold SPACE to handbrake-drift &nbsp;·&nbsp; no brakes &nbsp;·&nbsp; M mute</div>
+</div>
+<script>
+(() => {
+'use strict';
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const $ = id => document.getElementById(id);
+const elScore = $('score'), elSpeed = $('speed'), elDrift = $('drift'), elOverlay = $('overlay'),
+      elTitle = $('title'), elSub = $('sub'), elHint = $('hint');
+
+const COL = { ground:'#e4572e', deco1:'#cf4a24', deco2:'#f0714b', road:'#2d2a3a', edge:'#f6e7cb',
+              dash:'#575268', car:'#ffd23f', ink:'#1b1724', cream:'#f6e7cb' };
+const DS = 24, MAXH = 1.5, STEP = 1/120;
+const rand = (a,b) => a + Math.random()*(b-a);
+const clamp = (v,a,b) => v<a?a:v>b?b:v;
+const wrap = a => { while(a>Math.PI) a-=2*Math.PI; while(a<-Math.PI) a+=2*Math.PI; return a; };
+
+let W=0, H=0, DPR=1;
+function resize(){ DPR=Math.min(2,window.devicePixelRatio||1); W=innerWidth; H=innerHeight;
+  cv.width=W*DPR; cv.height=H*DPR; }
+addEventListener('resize',resize); resize();
+
+/* ---------- state ---------- */
+let pts, trimmed, g, car, cam, skids, parts, state='title', bot=true, tDead=0, hitstop=0, shake=0,
+    bonus=0, driftPts=0, driftCool=0, best=0, popT=0, time=0;
+try { best = +localStorage.getItem('fullsend.best') || 0; } catch(e){}
+
+const metresAt = i => (trimmed+i)*DS/10;
+const diff = m => clamp(m/3500,0,1);
+const roadWidth = m => 215 - 55*diff(m);
+const targetSpeed = m => 500 + 420*diff(m);
+
+function genStep(){
+  const m = metresAt(pts.length), d = diff(m);
+  if (g.left<=0){
+    if (g.mode==='turn'){ g.mode='straight'; g.left = rand(110,520)*(1-0.45*d); }
+    else { g.mode='turn'; let t; do { t=rand(-MAXH,MAXH); } while(Math.abs(t-g.h)<0.75);
+      g.sign=Math.sign(t-g.h); g.r=rand(150,330-90*d); g.left=Math.abs(t-g.h)*g.r; }
+  }
+  if (g.mode==='turn') g.h += g.sign*DS/g.r;
+  g.x += Math.sin(g.h)*DS; g.y -= Math.cos(g.h)*DS; g.left -= DS;
+  pts.push({x:g.x,y:g.y});
+}
+
+function reset(){
+  pts=[]; trimmed=0; g={x:0,y:0,h:0,mode:'straight',left:900};
+  pts.push({x:0,y:0}); while(pts.length<260) genStep();
+  car={x:0,y:-DS*4,h:0,vx:0,vy:-260,steer:0,grip:9,idx:4,slip:0,speed:260,drifting:false,far:0};
+  cam={x:car.x,y:car.y-150,z:1};
+  skids=[]; parts=[]; bonus=0; driftPts=0; driftCool=0; shake=0; hitstop=0;
+  lastWheel=null;
+}
+
+/* ---------- input ---------- */
+const keys={}; const touches=new Map();
+function inputs(){
+  let s=(keys.ArrowRight||keys.KeyD?1:0)-(keys.ArrowLeft||keys.KeyA?1:0);
+  let d=!!(keys.Space||keys.ShiftLeft||keys.ShiftRight||keys.ArrowDown||keys.KeyS);
+  if (touches.size){ let last=null,l=0,r=0; for(const t of touches.values()){ last=t; t.x<W/2?l++:r++; }
+    s = last.x<W/2?-1:1; if (l&&r) d=true; }
+  return {s,d};
+}
+function go(){ if(state==='title'||(state==='dead'&&tDead>0.35)) start(); }
+addEventListener('keydown',e=>{ if(e.repeat) return; keys[e.code]=true;
+  if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+  if(e.code==='KeyM') toggleMute();
+  if(e.code==='Space'||e.code==='Enter'||e.code==='KeyR') go(); });
+addEventListener('keyup',e=>{ keys[e.code]=false; });
+addEventListener('blur',()=>{ for(const k in keys) keys[k]=false; touches.clear(); });
+cv.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse'){ go(); return; } touches.set(e.pointerId,{x:e.clientX}); go(); });
+cv.addEventListener('pointermove',e=>{ if(touches.has(e.pointerId)) touches.get(e.pointerId).x=e.clientX; });
+const up=e=>touches.delete(e.pointerId); cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
+
+function start(){
+  reset(); state='play'; bot=false; audioInit();
+  elOverlay.classList.add('hidden'); elScore.classList.remove('hidden'); elSpeed.classList.remove('hidden');
+}
+
+/* ---------- bot (title screen + self-test) ---------- */
+function botInputs(){
+  const look = 4 + Math.floor(car.speed/95);
+  const p = pts[Math.min(pts.length-1, car.idx+look)];
+  const want = Math.atan2(p.x-car.x, -(p.y-car.y));
+  const vh = car.speed>60 ? Math.atan2(car.vx,-car.vy) : car.h;
+  const err = wrap(want - (car.h*0.55+vh*0.45)), slide = wrap(want-vh);
+  return { s:clamp(err*3.2,-1,1), d: Math.abs(slide)>0.5 && car.speed>330 };
+}
+
+/* ---------- physics ---------- */
+let lastWheel=null;
+function nearest(){
+  let bi=car.idx, bd=1e18;
+  const a=Math.max(0,car.idx-6), b=Math.min(pts.length-1,car.idx+45);
+  for(let i=a;i<=b;i++){ const dx=pts[i].x-car.x, dy=pts[i].y-car.y, d=dx*dx+dy*dy; if(d<bd){bd=d;bi=i;} }
+  car.idx=bi; let best2=1e18;
+  for(let i=Math.max(0,bi-1); i<Math.min(pts.length-1,bi+1); i++){
+    const p=pts[i], q=pts[i+1], ex=q.x-p.x, ey=q.y-p.y;
+    const t=clamp(((car.x-p.x)*ex+(car.y-p.y)*ey)/(ex*ex+ey*ey),0,1);
+    const dx=car.x-(p.x+ex*t), dy=car.y-(p.y+ey*t); best2=Math.min(best2,dx*dx+dy*dy);
+  }
+  return Math.sqrt(best2);
+}
+
+function step(dt){
+  time+=dt;
+  const inp = bot ? botInputs() : inputs();
+  const m = metresAt(car.idx);
+  car.steer += (inp.s-car.steer)*Math.min(1,dt*14);
+  car.drifting = inp.d;
+  car.h += car.steer*(inp.d?4.6:3.1)*dt*Math.min(1,car.speed/220);
+  const fx=Math.sin(car.h), fy=-Math.cos(car.h), rx=-fy, ry=fx;
+  let vf=car.vx*fx+car.vy*fy, vl=car.vx*rx+car.vy*ry;
+  const ts=targetSpeed(m);
+  if (inp.d) vf -= vf*0.62*dt; else if (vf<ts) vf=Math.min(ts,vf+380*dt); else vf-=(vf-ts)*0.8*dt;
+  car.grip += ((inp.d?2.3:9.5)-car.grip)*Math.min(1,dt*(inp.d?20:5));
+  vl *= Math.exp(-car.grip*dt);
+  car.vx=fx*vf+rx*vl; car.vy=fy*vf+ry*vl;
+  car.x+=car.vx*dt; car.y+=car.vy*dt;
+  car.speed=Math.hypot(car.vx,car.vy); car.slip=Math.abs(vl);
+
+  const dist = nearest();
+  while (pts.length < car.idx+220) genStep();
+  if (car.idx>320){ pts.splice(0,200); car.idx-=200; trimmed+=200; }
+  car.far = Math.max(car.far, metresAt(car.idx));
+
+  // drift scoring
+  if (car.slip>110 && car.speed>250){ driftPts += car.slip*dt*0.09; driftCool=0.3; }
+  else if (driftPts>0){ driftCool-=dt; if(driftCool<=0){ if(driftPts>=5){ bonus+=driftPts; pop('+'+Math.floor(driftPts)+' sideways'); } driftPts=0; } }
+
+  // skids + smoke
+  if (car.slip>75){
+    const bx=car.x-fx*17, by=car.y-fy*17, w=[{x:bx-rx*11,y:by-ry*11},{x:bx+rx*11,y:by+ry*11}];
+    if (lastWheel) for(let k=0;k<2;k++) skids.push({x1:lastWheel[k].x,y1:lastWheel[k].y,x2:w[k].x,y2:w[k].y});
+    if (skids.length>1400) skids.splice(0,skids.length-1400);
+    lastWheel=w;
+    if (Math.random()<dt*70) parts.push({x:bx+rand(-10,10),y:by+rand(-10,10),vx:-car.vx*0.08+rand(-25,25),vy:-car.vy*0.08+rand(-25,25),
+      r:rand(7,13),life:0,max:rand(.35,.7),kind:0});
+  } else lastWheel=null;
+
+  if (dist > roadWidth(m)/2 + 5) crash();
+}
+
+function crash(){
+  if (bot){ reset(); return; }
+  state='dead'; tDead=0; hitstop=0.09; shake=26;
+  for(let i=0;i<34;i++){ const a=rand(0,6.283), s=rand(120,620);
+    parts.push({x:car.x,y:car.y,vx:Math.cos(a)*s+car.vx*0.35,vy:Math.sin(a)*s+car.vy*0.35,r:rand(4,11),life:0,max:rand(.5,1.2),
+      kind:1,rot:rand(0,6),col:[COL.car,COL.ink,COL.cream,'#ff8a3d'][i%4]}); }
+  for(let i=0;i<10;i++) parts.push({x:car.x+rand(-20,20),y:car.y+rand(-20,20),vx:rand(-60,60),vy:rand(-60,60),r:rand(18,34),life:0,max:rand(.6,1.1),kind:0});
+  const sc=score(); const nb=sc>best; if(nb){ best=sc; try{localStorage.setItem('fullsend.best',best);}catch(e){} }
+  elTitle.innerHTML='WRECKED<span>'+sc+' m</span>'; elTitle.style.fontSize='clamp(48px,11vw,120px)';
+  elSub.innerHTML = nb ? '<b>new best!</b> &nbsp; space to send it again' : 'best '+best+' m &nbsp;·&nbsp; <b>space</b> to send it again';
+  elHint.classList.add('hidden'); elOverlay.classList.remove('hidden'); elDrift.style.opacity=0;
+  sfxCrash();
+}
+const score = () => Math.floor(car.far + bonus);
+function pop(t){ if(bot) return; elDrift.textContent=t; elDrift.style.opacity=1; popT=0.9; }
+
+/* ---------- audio ---------- */
+let ac=null, eng, eng2, engGain, skidGain, master, muted=false, noiseBuf;
+function audioInit(){
+  if (ac){ ac.resume(); return; }
+  try {
+    ac=new (window.AudioContext||window.webkitAudioContext)();
+    master=ac.createGain(); master.gain.value=muted?0:0.9; master.connect(ac.destination);
+    const lp=ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=900;
+    engGain=ac.createGain(); engGain.gain.value=0; lp.connect(engGain); engGain.connect(master);
+    eng=ac.createOscillator(); eng.type='sawtooth'; eng2=ac.createOscillator(); eng2.type='square';
+    eng.connect(lp); eng2.connect(lp); eng.start(); eng2.start();
+    noiseBuf=ac.createBuffer(1,ac.sampleRate,ac.sampleRate); const d=noiseBuf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    const n=ac.createBufferSource(); n.buffer=noiseBuf; n.loop=true;
+    const bp=ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1500; bp.Q.value=1.6;
+    skidGain=ac.createGain(); skidGain.gain.value=0; n.connect(bp); bp.connect(skidGain); skidGain.connect(master); n.start();
+  } catch(e){ ac=null; }
+}
+function audioTick(){
+  if(!ac) return; const t=ac.currentTime, on=state==='play';
+  const f=55+car.speed*0.17+Math.sin(time*40)*2;
+  eng.frequency.setTargetAtTime(f,t,0.04); eng2.frequency.setTargetAtTime(f*0.502,t,0.04);
+  engGain.gain.setTargetAtTime(on?0.07:0,t,0.05);
+  skidGain.gain.setTargetAtTime(on?clamp((car.slip-70)/500,0,0.16):0,t,0.04);
+}
+function sfxCrash(){
+  if(!ac) return; const t=ac.currentTime;
+  const n=ac.createBufferSource(); n.buffer=noiseBuf; const gn=ac.createGain();
+  gn.gain.setValueAtTime(0.5,t); gn.gain.exponentialRampToValueAtTime(0.001,t+0.7);
+  const lp=ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.setValueAtTime(3000,t); lp.frequency.exponentialRampToValueAtTime(200,t+0.6);
+  n.connect(lp); lp.connect(gn); gn.connect(master); n.start(t); n.stop(t+0.75);
+  const o=ac.createOscillator(); o.frequency.setValueAtTime(140,t); o.frequency.exponentialRampToValueAtTime(30,t+0.4);
+  const go2=ac.createGain(); go2.gain.setValueAtTime(0.6,t); go2.gain.exponentialRampToValueAtTime(0.001,t+0.45);
+  o.connect(go2); go2.connect(master); o.start(t); o.stop(t+0.5);
+}
+function toggleMute(){ muted=!muted; if(master) master.gain.value=muted?0:0.9; }
+
+/* ---------- render ---------- */
+function hash(x,y){ let h=(x*374761393+y*668265263)|0; h=(h^(h>>>13))*1274126177|0; return ((h^(h>>>16))>>>0)/4294967295; }
+function drawDeco(x0,y0,x1,y1){
+  const C=230;
+  for(let iy=Math.floor(y0/C); iy<=Math.floor(y1/C); iy++) for(let ix=Math.floor(x0/C); ix<=Math.floor(x1/C); ix++){
+    const r=hash(ix,iy); if(r>0.62) continue;
+    const x=(ix+0.2+hash(ix+7,iy)*0.6)*C, y=(iy+0.2+hash(ix,iy+13)*0.6)*C, s=14+hash(ix+3,iy+5)*26;
+    ctx.fillStyle = r<0.3?COL.deco1:COL.deco2;
+    if (r<0.2){ ctx.beginPath(); ctx.moveTo(x-s,y+s*.6); ctx.lineTo(x-s*.3,y-s); ctx.lineTo(x+s*.9,y-s*.4); ctx.lineTo(x+s*.7,y+s*.7); ctx.fill(); }
+    else if (r<0.42){ ctx.beginPath(); ctx.arc(x,y,s*.7,0,6.283); ctx.arc(x+s*.8,y+s*.3,s*.5,0,6.283); ctx.arc(x-s*.6,y+s*.4,s*.45,0,6.283); ctx.fill(); }
+    else { ctx.save(); ctx.translate(x,y); ctx.rotate(r*40); ctx.fillRect(-s*1.6,-3,s*3.2,6); ctx.fillRect(-s,10,s*2,5); ctx.restore(); }
+  }
+}
+function render(){
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.fillStyle=COL.ground; ctx.fillRect(0,0,W,H);
+  const base=Math.min(W,H)/820*1.05, z=cam.z*Math.max(base,0.45);
+  const sx=shake?rand(-shake,shake):0, sy=shake?rand(-shake,shake):0;
+  ctx.translate(W/2+sx,H*0.56+sy); ctx.scale(z,z); ctx.translate(-cam.x,-cam.y);
+  const hw=W/2/z+60, x0=cam.x-hw, x1=cam.x+hw, y0=cam.y-H*0.56/z-60, y1=cam.y+H*0.44/z+60;
+  drawDeco(x0,y0,x1,y1);
+
+  // road
+  const a=Math.max(0,car.idx-70), b=Math.min(pts.length-1,car.idx+150), w=roadWidth(metresAt(car.idx));
+  ctx.beginPath(); ctx.moveTo(pts[a].x,pts[a].y); for(let i=a+1;i<=b;i++) ctx.lineTo(pts[i].x,pts[i].y);
+  ctx.lineJoin='round'; ctx.lineCap='round';
+  ctx.strokeStyle='rgba(27,23,36,.28)'; ctx.lineWidth=w+44; ctx.stroke();
+  ctx.strokeStyle=COL.edge; ctx.lineWidth=w+18; ctx.stroke();
+  ctx.strokeStyle=COL.road; ctx.lineWidth=w; ctx.stroke();
+  ctx.lineCap='butt'; ctx.setLineDash([38,46]); ctx.lineDashOffset=-((trimmed+a)*DS)%84;
+  ctx.strokeStyle=COL.dash; ctx.lineWidth=6; ctx.stroke(); ctx.setLineDash([]);
+
+  // skids
+  ctx.strokeStyle='rgba(12,9,16,.42)'; ctx.lineWidth=6; ctx.lineCap='round'; ctx.beginPath();
+  for(const s of skids){ if(s.x2<x0||s.x2>x1||s.y2<y0||s.y2>y1) continue; ctx.moveTo(s.x1,s.y1); ctx.lineTo(s.x2,s.y2); }
+  ctx.stroke();
+
+  // car
+  if (state!=='dead'){
+    ctx.save(); ctx.translate(car.x+7,car.y+9); ctx.rotate(car.h); ctx.fillStyle='rgba(12,9,16,.35)'; rr(-14,-25,28,50,7); ctx.restore();
+    ctx.save(); ctx.translate(car.x,car.y); ctx.rotate(car.h);
+    ctx.fillStyle=COL.ink; for(const [wx,wy] of [[-15,-17],[11,-17],[-15,9],[11,9]]){
+      ctx.save(); ctx.translate(wx+2,wy+4); if(wy<0) ctx.rotate(car.steer*0.5); ctx.fillRect(-3,-5.5,6,11); ctx.restore(); }
+    ctx.fillStyle=COL.car; rr(-13,-25,26,50,7);
+    ctx.fillStyle=COL.ink; ctx.fillRect(-2.5,-25,5,50); rr(-10,-9,20,11,3); rr(-9,10,18,6,2);
+    ctx.fillStyle=COL.cream; ctx.fillRect(-11,-25,6,3); ctx.fillRect(5,-25,6,3);
+    ctx.fillStyle=car.drifting?'#ff3b30':'#b3261e'; ctx.fillRect(-11,22,6,3); ctx.fillRect(5,22,6,3);
+    ctx.restore();
+  }
+  // particles
+  for(const p of parts){ const k=p.life/p.max;
+    if(p.kind===0){ ctx.globalAlpha=(1-k)*0.55; ctx.fillStyle=COL.cream; ctx.beginPath(); ctx.arc(p.x,p.y,p.r*(1+k*1.8),0,6.283); ctx.fill(); }
+    else { ctx.globalAlpha=1-k*k; ctx.fillStyle=p.col; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot+p.life*9); ctx.fillRect(-p.r,-p.r*.6,p.r*2,p.r*1.2); ctx.restore(); }
+  }
+  ctx.globalAlpha=1;
+}
+function rr(x,y,w,h,r){ ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x,y,w,h,r) : ctx.rect(x,y,w,h); ctx.fill(); }
+
+/* ---------- loop ---------- */
+let last=performance.now(), acc=0;
+function frame(now){
+  let dt=Math.min(0.05,(now-last)/1000); last=now;
+  if (hitstop>0){ hitstop-=dt; dt=0; }
+  if (state!=='dead'){ acc+=dt; while(acc>=STEP && state!=='dead'){ step(STEP); acc-=STEP; } }
+  else { tDead+=dt; acc=0; }
+  for(let i=parts.length-1;i>=0;i--){ const p=parts[i]; p.life+=dt; if(p.life>=p.max){ parts.splice(i,1); continue; }
+    p.x+=p.vx*dt; p.y+=p.vy*dt; const f=Math.exp(-(p.kind?2.2:1.5)*dt); p.vx*=f; p.vy*=f; }
+  shake = shake>0.3 ? shake*Math.exp(-7*dt) : 0;
+  if (state==='play' && car.slip>200) shake=Math.max(shake,Math.min(3,car.slip/260));
+  // camera
+  const la = state==='dead'?0:0.34, k=Math.min(1,dt*5);
+  cam.x += (car.x+car.vx*la-cam.x)*k; cam.y += (car.y+car.vy*la-cam.y)*k;
+  cam.z += ((1.02-0.44*clamp(car.speed/920,0,1))-cam.z)*Math.min(1,dt*2.5);
+  // hud
+  if (state==='play'){
+    elScore.firstChild.nodeValue=score(); elSpeed.firstChild.nodeValue=Math.round(car.speed*0.3);
+    if (driftPts>=5){ elDrift.textContent='sideways '+Math.floor(driftPts); elDrift.style.opacity=1; popT=0; }
+    else if (popT>0){ popT-=dt; if(popT<=0) elDrift.style.opacity=0; }
+    else elDrift.style.opacity=0;
+  }
+  audioTick(); render();
+  requestAnimationFrame(frame);
+}
+
+/* headless self-test: bot drives `secs` of game time, returns crash stats */
+window.__sim = (secs=120) => {
+  const sb=bot, ss=state; bot=true; state='title'; reset(); let crashes=0, far=0, t=0, legs=[];
+  const oc=crash;
+  for(; t<secs; t+=STEP){ const before=car.far; step(STEP); if(car.far<before-1){ crashes++; legs.push(Math.round(before)); } far=Math.max(far,car.far); }
+  legs.push(Math.round(car.far)); bot=sb; state=ss; reset(); return {crashes, far:Math.round(far), legs};
+};
+window.__game = { get car(){return car;}, get state(){return state;}, start, demo(){ start(); bot=true; } };
+
+reset(); requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
