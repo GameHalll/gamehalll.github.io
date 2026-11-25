@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Die Spielhalle</title>
+<title>The Arcade</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -127,143 +127,143 @@ footer .heart{color:var(--coral)}
   <div class="shape" style="left:30%;top:30px">✦</div>
   <div class="shape" style="right:24%;bottom:30px;animation-duration:12s">▲</div>
   <div class="shape" style="left:8%;bottom:70px;animation-duration:22s">●</div>
-  <span class="badge">10 Spiele · alles selbst gebaut</span>
-  <h1><span class="w w1">Die</span> <span class="w w2">Spielhalle</span></h1>
-  <p class="lead">Wellen, Flugzeuge, Drifts, Cocktails und wackelige Schießereien. Fahr mit der Maus über ein Spiel für eine Vorschau, klick auf Spielen und los geht's.</p>
+  <span class="badge">10 games · all home-made</span>
+  <h1><span class="w w1">The</span> <span class="w w2">Arcade</span></h1>
+  <p class="lead">Waves, planes, drifts, cocktails and wobbly shootouts. Hover over a game for a preview, hit Play and off you go.</p>
   <div class="hero-actions">
-    <a class="btn" href="#spiele">Alle Spiele ansehen</a>
-    <button class="btn mint" id="random" type="button">🎲 Überrasch mich</button>
+    <a class="btn" href="#games">Browse all games</a>
+    <button class="btn mint" id="random" type="button">🎲 Surprise me</button>
   </div>
 </header>
 
 <nav class="bar" aria-label="Filter">
-  <button class="chip" aria-pressed="true" data-f="all">Alle</button>
-  <button class="chip" aria-pressed="false" data-f="rec">⭐ Empfohlen</button>
-  <button class="chip" aria-pressed="false" data-f="race">Rennen</button>
+  <button class="chip" aria-pressed="true" data-f="all">All</button>
+  <button class="chip" aria-pressed="false" data-f="rec">⭐ Recommended</button>
+  <button class="chip" aria-pressed="false" data-f="race">Racing</button>
   <button class="chip" aria-pressed="false" data-f="action">Action</button>
-  <button class="chip" aria-pressed="false" data-f="chill">Chillig</button>
-  <button class="chip" aria-pressed="false" data-f="multi">Mit Freunden</button>
+  <button class="chip" aria-pressed="false" data-f="chill">Chill</button>
+  <button class="chip" aria-pressed="false" data-f="multi">With friends</button>
   <span class="count" id="count"></span>
 </nav>
 
-<main id="spiele">
+<main id="games">
   <div class="grid" id="grid">
 
     <article class="card rec" data-cat="rec action multi" data-media="tsunami">
-      <div class="art"><img decoding="async" src="media/tsunami.jpg" alt="Tsunami Heist Startbildschirm"><span class="recbadge">⭐ Empfohlen</span><span class="tagnew">NEU</span><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="art"><img decoding="async" src="media/tsunami.jpg" alt="Tsunami Heist title screen"><span class="recbadge">⭐ Recommended</span><span class="tagnew">NEW</span><span class="hint">Preview loading…</span><span class="timer"></span></div>
       <div class="body">
         <h3>Tsunami Heist</h3>
-        <p>Renn den Strand runter, schnapp dir ein seltenes Meme-Wesen und schaff's nach Hause, bevor die Welle kommt. Und pass auf: die anderen klauen.</p>
-        <div class="tags"><span>3D</span><span>Sammeln</span><span>Basis klauen</span></div>
-        <div class="keys"><b>WASD</b> laufen · <b>E</b> schnappen / klauen · <b>Klick</b> Schläger</div>
-        <div class="foot"><span class="players">1 Spieler + Bots</span><a class="btn" href="tsunami-heist/">Spielen ▶</a></div>
+        <p>Sprint down the beach, grab a rare meme creature and make it home before the wave hits. Watch out: the others steal.</p>
+        <div class="tags"><span>3D</span><span>Collecting</span><span>Base stealing</span></div>
+        <div class="keys"><b>WASD</b> move · <b>E</b> grab / steal · <b>Click</b> bat</div>
+        <div class="foot"><span class="players">1 player + bots</span><a class="btn" href="tsunami-heist/">Play ▶</a></div>
       </div>
     </article>
 
     <article class="card rec" data-cat="rec chill" data-media="sky">
-      <div class="art"><img decoding="async" src="media/sky.jpg" alt="Sky Hustle Cover"><span class="recbadge">⭐ Empfohlen</span><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="art"><img decoding="async" src="media/sky.jpg" alt="Sky Hustle Cover"><span class="recbadge">⭐ Recommended</span><span class="hint">Preview loading…</span><span class="timer"></span></div>
       <div class="body">
         <h3>Sky Hustle</h3>
-        <p>Flieg Missionen über eine Insel, verdien Geld und kauf dir immer schnellere Flugzeuge. Starten, landen, Kasse machen.</p>
-        <div class="tags"><span>3D</span><span>Fliegen</span><span>Missionen</span></div>
-        <div class="keys"><b>Leertaste / Shift</b> Gas · <b>W S</b> Nase · <b>A D</b> rollen · <b>B</b> bremsen</div>
-        <div class="foot"><span class="players">1 Spieler</span><a class="btn" href="sky-hustle/">Spielen ▶</a></div>
+        <p>Fly missions over an island, earn cash and buy faster and faster planes. Take off, land, get paid.</p>
+        <div class="tags"><span>3D</span><span>Flying</span><span>Missions</span></div>
+        <div class="keys"><b>Space / Shift</b> throttle · <b>W S</b> pitch · <b>A D</b> roll · <b>B</b> brakes</div>
+        <div class="foot"><span class="players">1 player</span><a class="btn" href="sky-hustle/">Play ▶</a></div>
       </div>
     </article>
 
     <article class="card rec" data-cat="rec race multi" data-media="blind">
-      <div class="art"><img decoding="async" src="media/blind.jpg" alt="Blind Corner Cover"><span class="recbadge">⭐ Empfohlen</span><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="art"><img decoding="async" src="media/blind.jpg" alt="Blind Corner Cover"><span class="recbadge">⭐ Recommended</span><span class="hint">Preview loading…</span><span class="timer"></span></div>
       <div class="body">
         <h3>Blind Corner</h3>
-        <p>Koop-Rallye ohne Bremsen: Einer fährt, der andere liest die Karte und sagt die Kurven an. Nur zusammen kommt ihr heil ins Ziel.</p>
-        <div class="tags"><span>3D</span><span>Rennen</span><span>Koop</span></div>
-        <div class="keys"><b>← →</b> lenken · <b>Leertaste</b> Handbremse · <b>M</b> Ton</div>
-        <div class="foot"><span class="players">1–2 Spieler</span><a class="btn" href="full-send/index.html">Spielen ▶</a></div>
+        <p>Co-op rally with no brakes: one drives, the other reads the map and calls the corners. Only together do you reach the finish in one piece.</p>
+        <div class="tags"><span>3D</span><span>Racing</span><span>Co-op</span></div>
+        <div class="keys"><b>← →</b> steer · <b>Space</b> handbrake · <b>M</b> sound</div>
+        <div class="foot"><span class="players">1–2 players</span><a class="btn" href="full-send/index.html">Play ▶</a></div>
       </div>
     </article>
 
     <article class="card" data-cat="race" data-media="dirt">
-      <div class="art"><img decoding="async" src="media/dirt.jpg" alt="Dirt Angle Startbildschirm"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="art"><img decoding="async" src="media/dirt.jpg" alt="Dirt Angle title screen"><span class="hint">Preview loading…</span><span class="timer"></span></div>
       <div class="body">
         <h3>Dirt Angle</h3>
-        <p>Asphalt, Schotter und Waldwege. Fahr Etappe für Etappe, kette Drifts für den Multiplikator und kauf dir schnellere Autos in der Garage.</p>
-        <div class="tags"><span>3D</span><span>Rennen</span><span>Drift</span></div>
-        <div class="keys"><b>WASD</b> fahren · <b>Leertaste</b> Handbremse · <b>C</b> Kamera</div>
-        <div class="foot"><span class="players">1 Spieler</span><a class="btn" href="drift-game/">Spielen ▶</a></div>
+        <p>Tarmac, gravel and forest tracks. Race stage by stage, chain drifts for the multiplier and buy faster cars in the garage.</p>
+        <div class="tags"><span>3D</span><span>Racing</span><span>Drift</span></div>
+        <div class="keys"><b>WASD</b> drive · <b>Space</b> handbrake · <b>C</b> camera</div>
+        <div class="foot"><span class="players">1 player</span><a class="btn" href="drift-game/">Play ▶</a></div>
       </div>
     </article>
 
     <article class="card" data-cat="chill" data-media="lastcall">
-      <div class="art"><img decoding="async" src="media/lastcall.jpg" alt="Last Call Cover"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="art"><img decoding="async" src="media/lastcall.jpg" alt="Last Call Cover"><span class="hint">Preview loading…</span><span class="timer"></span></div>
       <div class="body">
         <h3>Last Call</h3>
-        <p>Du stehst hinter der Bar im vollsten Club der Stadt. Jeden Drink selbst einschenken, die Schlange abarbeiten, Trinkgeld stapeln.</p>
-        <div class="tags"><span>3D</span><span>Simulation</span><span>50+ Drinks</span></div>
-        <div class="keys"><b>Maus halten</b> einschenken · <b>F</b> shaken · <b>R</b> Rezepte</div>
-        <div class="foot"><span class="players">1 Spieler</span><a class="btn" href="last-call/">Spielen ▶</a></div>
+        <p>You're behind the bar of the busiest club in town. Pour every drink yourself, work through the queue, stack up tips.</p>
+        <div class="tags"><span>3D</span><span>Simulation</span><span>50+ drinks</span></div>
+        <div class="keys"><b>Hold mouse</b> pour · <b>F</b> shake · <b>R</b> recipes</div>
+        <div class="foot"><span class="players">1 player</span><a class="btn" href="last-call/">Play ▶</a></div>
       </div>
     </article>
 
     <article class="card" data-cat="race" data-media="fullsend">
-      <div class="art"><img decoding="async" src="media/fullsend.jpg" alt="Full Send Cover"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="art"><img decoding="async" src="media/fullsend.jpg" alt="Full Send Cover"><span class="hint">Preview loading…</span><span class="timer"></span></div>
       <div class="body">
         <h3>Full Send</h3>
-        <p>Von oben: Kurven schneiden, mit der Handbremse driften und nie, wirklich nie, vom Gas gehen. Bloß nicht den Rand berühren.</p>
-        <div class="tags"><span>Rennen</span><span>Drift</span><span>Von oben</span></div>
-        <div class="keys"><b>← →</b> lenken · <b>Leertaste</b> driften</div>
-        <div class="foot"><span class="players">1 Spieler</span><a class="btn" href="full-send/topdown.html">Spielen ▶</a></div>
+        <p>Top-down: cut corners, drift with the handbrake and never, ever lift off the throttle. Just don't touch the edge.</p>
+        <div class="tags"><span>Racing</span><span>Drift</span><span>Top-down</span></div>
+        <div class="keys"><b>← →</b> lenken · <b>Space</b> drift</div>
+        <div class="foot"><span class="players">1 player</span><a class="btn" href="full-send/topdown.html">Play ▶</a></div>
       </div>
     </article>
 
     <article class="card" data-cat="chill" data-media="nuke">
-      <div class="art"><img decoding="async" src="media/nuke.jpg" alt="Nuke Orbit Startbildschirm"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="art"><img decoding="async" src="media/nuke.jpg" alt="Nuke Orbit title screen"><span class="hint">Preview loading…</span><span class="timer"></span></div>
       <div class="body">
         <h3>Nuke Orbit</h3>
-        <p>Schieß eine Cartoon-Atombombe so weit wie möglich. Aufrüsten, freischalten, nochmal. Wie weit kommt eine schlechte Idee?</p>
-        <div class="tags"><span>Casual</span><span>Upgrades</span><span>Weitschuss</span></div>
-        <div class="keys"><b>Klick / Leertaste</b> starten · dann upgraden und nochmal</div>
-        <div class="foot"><span class="players">1 Spieler</span><a class="btn" href="nuke-orbit/">Spielen ▶</a></div>
+        <p>Launch a cartoon nuke as far as you can. Upgrade, unlock, repeat. How far can a bad idea go?</p>
+        <div class="tags"><span>Casual</span><span>Upgrades</span><span>Distance launch</span></div>
+        <div class="keys"><b>Click / Space</b> launch · then upgrade and go again</div>
+        <div class="foot"><span class="players">1 player</span><a class="btn" href="nuke-orbit/">Play ▶</a></div>
       </div>
     </article>
 
     <article class="card" data-cat="action multi" data-media="kickback">
-      <div class="art"><img decoding="async" src="media/kickback.jpg" alt="Kickback Startbildschirm"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="art"><img decoding="async" src="media/kickback.jpg" alt="Kickback title screen"><span class="hint">Preview loading…</span><span class="timer"></span></div>
       <div class="body">
         <h3>Kickback</h3>
-        <p>Wackelige Schießereien, bei denen dich jeder Schuss nach hinten schubst. Solo gegen Wellen oder im Duell zu zweit.</p>
-        <div class="tags"><span>Action</span><span>Physik</span><span>Duell</span></div>
-        <div class="keys"><b>Maus</b> zielen · <b>Klick</b> schießen · <b>A D</b> watscheln</div>
-        <div class="foot"><span class="players">1–2 Spieler</span><a class="btn" href="kickback/">Spielen ▶</a></div>
+        <p>Wobbly shootouts where every shot knocks you backwards. Solo against waves or a head-to-head duel.</p>
+        <div class="tags"><span>Action</span><span>Physics</span><span>Duel</span></div>
+        <div class="keys"><b>Mouse</b> aim · <b>Click</b> shoot · <b>A D</b> waddle</div>
+        <div class="foot"><span class="players">1–2 players</span><a class="btn" href="kickback/">Play ▶</a></div>
       </div>
     </article>
 
     <article class="card" data-cat="action multi" data-media="happylife">
-      <div class="art"><img decoding="async" src="media/happylife.jpg" alt="Happy Life Cover"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="art"><img decoding="async" src="media/happylife.jpg" alt="Happy Life Cover"><span class="hint">Preview loading…</span><span class="timer"></span></div>
       <div class="body">
         <h3>Happy Life</h3>
-        <p>Ein Online-Rennen für bis zu 3 Spieler. Alles ist darauf gebaut, dich zu beschützen. Du bist ein Crashtest-Dummy, und wer zuerst kaputtgeht, gewinnt.</p>
-        <div class="tags"><span>Jump'n'Run</span><span>Online</span><span>Splitscreen</span></div>
-        <div class="keys"><b>A D</b> laufen · <b>W</b> springen · <b>Shift</b> dashen</div>
-        <div class="foot"><span class="players">1–3 Spieler</span><a class="btn" href="happy-life/">Spielen ▶</a></div>
+        <p>An online race for up to 3 players. Everything is built to protect you. You're a crash test dummy, and whoever breaks first wins.</p>
+        <div class="tags"><span>Platformer</span><span>Online</span><span>Splitscreen</span></div>
+        <div class="keys"><b>A D</b> run · <b>W</b> jump · <b>Shift</b> dash</div>
+        <div class="foot"><span class="players">1–3 players</span><a class="btn" href="happy-life/">Play ▶</a></div>
       </div>
     </article>
 
     <article class="card" data-cat="multi action" data-media="debt">
-      <div class="art"><img decoding="async" src="media/debt.jpg" alt="House of Debt Lobby"><span class="hint">Vorschau lädt…</span><span class="timer"></span></div>
+      <div class="art"><img decoding="async" src="media/debt.jpg" alt="House of Debt Lobby"><span class="hint">Preview loading…</span><span class="timer"></span></div>
       <div class="body">
         <h3>House of Debt</h3>
-        <p>Chaotisches Koop-Casino in 3D. Euer Team schuldet dem Haus 250.000 Punkte: Automaten knacken, Tagesziel schaffen, vier Etagen hochklettern. Nur Spielpunkte, kein echtes Geld.</p>
-        <div class="tags"><span>3D</span><span>Koop</span><span>Online</span></div>
-        <div class="note">Online-Version folgt – läuft nur lokal mit eigenem Spielserver.</div>
-        <div class="foot"><span class="players">1–6 Spieler</span><span class="btn" style="opacity:.5;pointer-events:none">Bald ▶</span></div>
+        <p>Chaotic co-op casino in 3D. Your team owes the house 250,000 points: crack machines, hit the daily target, climb four floors. Play points only, no real money.</p>
+        <div class="tags"><span>3D</span><span>Co-op</span><span>Online</span></div>
+        <div class="note">Online version coming soon.</div>
+        <div class="foot"><span class="players">1–6 players</span><span class="btn" style="opacity:.5;pointer-events:none">Soon ▶</span></div>
       </div>
     </article>
 
   </div>
-  <p class="empty" id="empty">Hier ist gerade nichts. Probier einen anderen Filter!</p>
+  <p class="empty" id="empty">Nothing here right now. Try another filter!</p>
 </main>
 
-<footer>Gebaut mit viel Kaffee und <span class="heart">♥</span> · Viel Spaß beim Zocken!</footer>
+<footer>Built with lots of coffee and <span class="heart">♥</span> · Have fun playing!</footer>
 
 <script>
 const cards=[...document.querySelectorAll('.card')];
@@ -273,7 +273,7 @@ function apply(f){
   let n=0;
   cards.forEach(c=>{const ok=f==='all'||c.dataset.cat.split(' ').includes(f); c.classList.toggle('hide',!ok); if(ok)n++;});
   chips.forEach(ch=>ch.setAttribute('aria-pressed',ch.dataset.f===f));
-  count.textContent=n+(n===1?' Spiel':' Spiele');
+  count.textContent=n+(n===1?' game':' games');
   document.getElementById('empty').style.display=n?'none':'block';
 }
 chips.forEach(ch=>ch.addEventListener('click',()=>apply(ch.dataset.f)));
