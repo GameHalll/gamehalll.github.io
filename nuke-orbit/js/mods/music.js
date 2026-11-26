@@ -446,7 +446,7 @@
   }
   function refreshToggle() {
     if (!toggleBtn) return;
-    toggleBtn.textContent = st().on ? '🎵 MUSIC ON' : '🎵 MUSIC OFF';
+    toggleBtn.innerHTML = NO.ico('music') + (st().on ? 'MUSIC ON' : 'MUSIC OFF');
     toggleBtn.classList.toggle('off', !st().on);
     toggleBtn.title = NO.Save.data.muted ? 'Sound is off – turn SOUND on to hear music' : '';
   }

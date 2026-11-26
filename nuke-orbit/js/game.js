@@ -331,6 +331,9 @@ NO.Game = (function () {
       let steps = 0;
       while (acc >= SUB && steps < 2400) { stepPhysics(SUB); acc -= SUB; steps++; if (S.bomb.stopped) break; }
       const b = S.bomb;
+      /* safety net: however many boosts stack up, a very long ground run slowly bleeds speed so it always ends */
+      S.run.flightT = (S.run.flightT || 0) + dt;
+      if (S.run.flightT > 40) { const k = Math.exp(-0.06 * (S.run.flightT - 40) * dt); b.vx *= k; if (b.vy > 0) b.vy *= k; }
       // visual rotation
       if (!b.rolling) {
         const target = Math.atan2(-b.vy, b.vx);
@@ -673,7 +676,8 @@ NO.Game = (function () {
           break;
         }
         case 'flake': {
-          ctx.globalAlpha = 1 - f; ctx.fillStyle = '#fff'; ctx.font = `700 ${Math.max(8, p.size * v.ppm * 3)}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText('❄', x, y);
+          ctx.globalAlpha = 1 - f; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+          { const r = Math.max(3, p.size * v.ppm * 1.3); ctx.beginPath(); for (let k = 0; k < 3; k++) { const a = k * Math.PI / 3 + p.life * 2; ctx.moveTo(x - Math.cos(a) * r, y - Math.sin(a) * r); ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } ctx.stroke(); }
           break;
         }
         default: {

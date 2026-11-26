@@ -33,7 +33,7 @@
   /* ---------------------------- the upgrade ----------------------------- */
   if (!NO.UPGRADES.some((u) => u.id === 'fuel')) {
     NO.UPGRADES.push({
-      id: 'fuel', name: 'THRUSTER FUEL', icon: '🔥', base: 20, growth: 1.255,
+      id: 'fuel', name: 'THRUSTER FUEL', icon: NO.ico('fire'), base: 20, growth: 1.255,
       desc: 'Bigger thruster tank. HOLD during flight to boost!',
       stat: (lv) => Math.round(tankFor(lv) / tankFor(0) * 100) + '% tank',
     });
@@ -312,7 +312,7 @@
     const cx = x - 4, cy = y + h / 2, R = 17;
     ctx.beginPath(); ctx.arc(cx, cy + 3, R, 0, Math.PI * 2); ctx.fillStyle = 'rgba(20,16,60,.28)'; ctx.fill();
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fillStyle = st.firing ? '#ffd23f' : '#f7a531'; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = INK; ctx.stroke();
-    ctx.font = '17px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🔥', cx, cy + 1);
+    { const im = NO.icoImg('fire'); if (im.complete && im.naturalWidth) ctx.drawImage(im, cx - 11, cy - 11, 22, 22); }
     // label
     ctx.font = '700 13px Fredoka, "Arial Rounded MT Bold", Nunito, sans-serif';
     ctx.lineWidth = 4; ctx.strokeStyle = INK; ctx.fillStyle = '#fff';

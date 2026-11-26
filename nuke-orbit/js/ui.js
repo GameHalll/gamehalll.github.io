@@ -119,7 +119,7 @@ NO.UI = (function () {
     $('menuCoins').innerHTML = '<i class="coin"></i>' + fmt(d.coins);
     $('menuWorld').textContent = NO.byId(NO.ENVIRONMENTS, d.env).name.replace('Green ', '');
     $('shopBadge').classList.toggle('hidden', affordableUpgrades() === 0);
-    $('btnMute').textContent = d.muted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
+    $('btnMute').innerHTML = d.muted ? NO.ico('mute') + 'SOUND OFF' : NO.ico('sound') + 'SOUND ON';
     NO.Mods.emit('menu');
   }
 
@@ -200,9 +200,9 @@ NO.UI = (function () {
       const isSel = sel === item.id;
       const el = document.createElement('div');
       el.className = 'card' + (isSel ? ' selected' : '') + (has ? '' : ' locked');
-      const btnLabel = isSel ? '✔ SELECTED' : has ? 'SELECT' : `<i class="coin"></i>${fmt(item.price)}`;
+      const btnLabel = isSel ? NO.ico('check') + 'SELECTED' : has ? 'SELECT' : `<i class="coin"></i>${fmt(item.price)}`;
       const can = has || d.coins >= item.price;
-      el.innerHTML = `<canvas></canvas>${has ? '' : '<div class="lock">🔒</div>'}
+      el.innerHTML = `<canvas></canvas>${has ? '' : '<div class="lock">' + NO.ico('lock') + '</div>'}
         <div class="card-name">${item.name}</div><div class="card-tag">${item.tag}</div>
         <button class="btn ${!has && can ? 'can' : ''}" ${isSel || !can ? 'disabled' : ''}>${btnLabel}</button>`;
       el.querySelector('button').addEventListener('click', () => pickSkin(kind, item));
@@ -236,9 +236,9 @@ NO.UI = (function () {
       const el = document.createElement('div');
       el.className = 'card' + (isSel ? ' selected' : '') + (open ? '' : ' locked');
       const best = d.bestByEnv[e.id] ? 'Best here: ' + fmtDist(d.bestByEnv[e.id]) : open ? 'Not launched here yet' : `Reach ${fmtDist(e.unlock)} to unlock`;
-      el.innerHTML = `<canvas></canvas><div class="mult">x${e.mult} COINS</div>${open ? '' : '<div class="lock">🔒</div>'}
+      el.innerHTML = `<canvas></canvas><div class="mult">x${e.mult} COINS</div>${open ? '' : '<div class="lock">' + NO.ico('lock') + '</div>'}
         <div class="card-name">${e.name}</div><div class="card-tag">${best}${e.gravity < 1 ? ' · Low gravity!' : ''}</div>
-        <button class="btn" ${isSel || !open ? 'disabled' : ''}>${isSel ? '✔ SELECTED' : open ? 'SELECT' : '🔒 ' + fmtDist(e.unlock)}</button>`;
+        <button class="btn" ${isSel || !open ? 'disabled' : ''}>${isSel ? NO.ico('check') + 'SELECTED' : open ? 'SELECT' : NO.ico('lock') + ' ' + fmtDist(e.unlock)}</button>`;
       el.querySelector('button').addEventListener('click', () => {
         d.env = e.id; NO.Save.save(); NO.Game.refreshEnv(); NO.Audio.click(); renderWorlds();
       });
@@ -291,15 +291,15 @@ NO.UI = (function () {
     $('resRecord').classList.toggle('hidden', !r.isRecord);
     $('resSub').textContent = `Top speed ${fmt(r.topSpeed * 3.6)} km/h · Max altitude ${fmt(r.maxAlt)} m · ${r.bounces} bounces${r.perfect ? ' · PERFECT launch!' : ''}`;
     $('resDistCoins').textContent = '+' + fmt(r.distCoins);
-    $('resCollected').textContent = '+' + fmt(r.collected) + (r.gems ? ` (${r.gems}💎)` : '');
+    $('resCollected').innerHTML = '+' + fmt(r.collected) + (r.gems ? ` (${r.gems} ${NO.ico('gem')})` : '');
     $('resMs').textContent = '+' + fmt(r.milestoneCoins);
     $('resOrbitRow').classList.toggle('hidden', !r.orbitLaps);
     $('resOrbit').textContent = '+' + fmt(r.orbitCoins) + ' (' + r.orbitLaps + ' lap' + (r.orbitLaps > 1 ? 's' : '') + ')';
-    $('resOrbitHint').innerHTML = r.orbitLaps ? '🪐 You reached ORBIT!' :
-      `🪐 Orbit needs <b>${fmt(NO.CONFIG.ORBIT_VX * 3.6)} km/h</b> at the top of the arc · you had ${fmt(r.apexVx * 3.6)} km/h`;
+    $('resOrbitHint').innerHTML = r.orbitLaps ? NO.ico('planet') + ' You reached ORBIT!' :
+      `${NO.ico('planet')} Orbit needs <b>${fmt(NO.CONFIG.ORBIT_VX * 3.6)} km/h</b> at the top of the arc · you had ${fmt(r.apexVx * 3.6)} km/h`;
     $('resModRow').classList.toggle('hidden', !r.modCoins);
     $('resMod').textContent = '+' + fmt(r.modCoins || 0);
-    $('resModLabel').textContent = (r.modRows && r.modRows.length) ? '⭐ ' + r.modRows.map((x) => x.label).join(' · ') : '⭐ Bonus';
+    $('resModLabel').innerHTML = NO.ico('star') + ' ' + ((r.modRows && r.modRows.length) ? r.modRows.map((x) => x.label).join(' · ') : 'Bonus');
     $('resMult').textContent = 'x' + r.mult;
     $('resBest').textContent = fmtDist(r.best);
     $('resCoins').textContent = fmt(data().coins);
@@ -307,11 +307,11 @@ NO.UI = (function () {
     countUp($('resDist'), r.distance, 1.0, (v) => fmt(v));
     countUp($('resTotal'), r.total, 1.2, (v) => '+' + fmt(v));
     const u = $('resUnlock');
-    if (r.newWorlds.length) { u.classList.remove('hidden'); u.textContent = '🌍 NEW WORLD UNLOCKED: ' + r.newWorlds.map((e) => e.name.toUpperCase()).join(', ') + '!'; }
+    if (r.newWorlds.length) { u.classList.remove('hidden'); u.innerHTML = NO.ico('globe') + ' NEW WORLD UNLOCKED: ' + r.newWorlds.map((e) => e.name.toUpperCase()).join(', ') + '!'; }
     else u.classList.add('hidden');
     const n = affordableUpgrades();
     const nextEnv = NO.ENVIRONMENTS.find((e) => data().best < e.unlock);
-    $('resHint').textContent = n ? `💡 You can afford ${n} upgrade${n > 1 ? 's' : ''}!` : nextEnv ? `Next world: ${nextEnv.name} at ${fmtDist(nextEnv.unlock)}` : 'All worlds unlocked. Absolute legend.';
+    $('resHint').innerHTML = n ? `${NO.ico('bulb')} You can afford ${n} upgrade${n > 1 ? 's' : ''}!` : nextEnv ? `Next world: ${nextEnv.name} at ${fmtDist(nextEnv.unlock)}` : 'All worlds unlocked. Absolute legend.';
     current = 'results'; stack.length = 0;
     $('screen-results').classList.remove('hidden');
   }

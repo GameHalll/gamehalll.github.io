@@ -30,17 +30,17 @@ NO.CONFIG = {
 /* ---------- Upgrades: 3 categories x 30 levels, exponential pricing ---------- */
 NO.UPGRADES = [
   {
-    id: 'launch', name: 'LAUNCH POWER', icon: '🚀', base: 12, growth: 1.255,
+    id: 'launch', name: 'LAUNCH POWER', icon: NO.ico('rocket'), base: 12, growth: 1.255,
     desc: 'Bigger initial launch velocity. Every launch hits harder.',
     stat: (lv) => Math.round(NO.physicsFor({ launch: lv, bounce: 0, speed: 0 }).v0 * 3.6) + ' km/h launch',
   },
   {
-    id: 'bounce', name: 'BOUNCE', icon: '🏀', base: 15, growth: 1.255,
+    id: 'bounce', name: 'BOUNCE', icon: NO.ico('ball'), base: 15, growth: 1.255,
     desc: 'Springier landings. Keep bouncing long after impact.',
     stat: (lv) => Math.round(NO.physicsFor({ launch: 0, bounce: lv, speed: 0 }).restitution * 100) + '% rebound',
   },
   {
-    id: 'speed', name: 'SPEED', icon: '💨', base: 18, growth: 1.255,
+    id: 'speed', name: 'SPEED', icon: NO.ico('wind'), base: 18, growth: 1.255,
     desc: 'Aerodynamic casing. Lose horizontal speed much slower.',
     stat: (lv) => Math.round((1 - NO.physicsFor({ launch: 0, bounce: 0, speed: lv }).drag / 0.07) * 100) + '% less drag',
   },

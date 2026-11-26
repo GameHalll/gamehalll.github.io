@@ -16,12 +16,13 @@
 
   /* ------------------------------ tuning ------------------------------- */
   const T = {
-    density0: 0.4, densityK: 1 / 150, densityMax: 0.95,   // chance per chunk
-    secondChance: 0.55,                                     // 2nd object in long chunks (far only)
+    density0: 0.3, densityK: 1 / 250, densityMax: 0.6,   // chance per chunk
+    secondChance: 0.25,                                     // 2nd object in long chunks (far only)
     springMul: 1.8, springAdd: 13, springCapMul: 1.15, springCapAdd: 8, springVx: 1.05,
     springRollVy: 11, springRollK: 0.22, springRollCap: 28,
     padAdd: 8, padK: 0.2, padCap: 30, padHop: 5,
     rampK: 0.66, rampMin: 7, rampMax: 55, rampKeepX: 0.93, rampBounceK: 0.28, rampBounceMax: 22,
+    fade: 0.7, maxGood: 6,   // every helpful hit in a run is weaker (x0.7); after maxGood they do nothing -> runs always end
     mudKeepX: 0.8, mudKeepY: 0.5, mudDecel: 10, mudDecelK: 0.6,
   };
 
@@ -179,19 +180,25 @@
     return null;
   }
 
+  /* helpful objects lose power with every use in a run, so they can never keep the bomb going forever */
+  let goodHits = 0;
+  function power() { return goodHits >= T.maxGood ? 0 : Math.pow(T.fade, goodHits); }
   function onBounce(S, impact, b) {
     const o = find(b.x, 0.35);
-    if (!o) return;
+    if (!o || o.used) return;
+    const f = o.type === 'mud' ? 1 : power();
+    if (f <= 0) return;
+    if (o.type !== 'mud') { o.used = true; goodHits++; }
     if (o.type === 'spring') {
       const vy = Math.min(Math.max(b.vy * T.springMul, b.vy + T.springAdd), impact * T.springCapMul + T.springCapAdd);
-      b.vy = Math.max(b.vy, vy); b.vx *= T.springVx; b.squash = 1;
+      b.vy = Math.max(b.vy, b.vy + (vy - b.vy) * f); b.vx *= 1 + (T.springVx - 1) * f; b.squash = 1;
       fx(S, o, b, Math.min(2, impact / 30));
     } else if (o.type === 'pad') {
-      b.vx += T.padAdd + Math.min(b.vx * T.padK, T.padCap);
-      b.vy = Math.max(b.vy, T.padHop);
+      b.vx += (T.padAdd + Math.min(b.vx * T.padK, T.padCap)) * f;
+      b.vy = Math.max(b.vy, T.padHop * f);
       fx(S, o, b);
     } else if (o.type === 'ramp') {
-      b.vy += Math.min(Math.max(3, b.vx * T.rampBounceK), T.rampBounceMax);
+      b.vy += Math.min(Math.max(3, b.vx * T.rampBounceK), T.rampBounceMax) * f;
       b.y = Math.max(b.y, R() + o.h * Math.min(1, Math.max(0, (b.x - o.x) / o.w)));
       fx(S, o, b);
     } else {
@@ -214,18 +221,20 @@
       return;
     }
     if (o.used) return;
+    const f = power();
+    if (f <= 0) return;
     if (o.type === 'spring') {
       if (Math.abs(b.x - (o.x + o.w / 2)) > o.w * 0.35) return;
-      o.used = true;
+      o.used = true; goodHits++;
       b.rolling = false; b.y = R() + 0.35;
-      b.vy = Math.min(T.springRollVy + b.vx * T.springRollK, T.springRollCap);
-      b.vx *= T.springVx; b.squash = 1;
+      b.vy = Math.min(T.springRollVy + b.vx * T.springRollK, T.springRollCap) * f;
+      b.vx *= 1 + (T.springVx - 1) * f; b.squash = 1;
       fx(S, o, b);
     } else if (o.type === 'pad') {
       if (b.x < o.x + 0.4) return;
-      o.used = true;
-      b.vx += T.padAdd + Math.min(b.vx * T.padK, T.padCap);
-      b.rolling = false; b.vy = T.padHop;
+      o.used = true; goodHits++;
+      b.vx += (T.padAdd + Math.min(b.vx * T.padK, T.padCap)) * f;
+      b.rolling = false; b.vy = T.padHop * f;
       fx(S, o, b);
     } else if (o.type === 'ramp') {
       const t = (b.x - o.x) / o.w;
@@ -236,9 +245,9 @@
         b.vx -= api().gravity() * 0.25 * dt;
         return;
       }
-      o.used = true;
+      o.used = true; goodHits++;
       b.rolling = false; b.y = R() + o.h;
-      b.vy = Math.min(Math.max(b.vx * T.rampK, T.rampMin), T.rampMax);
+      b.vy = Math.min(Math.max(b.vx * T.rampK, T.rampMin * f), T.rampMax);
       b.vx *= T.rampKeepX;
       fx(S, o, b);
     }
@@ -443,7 +452,7 @@
   /* ------------------------------ wiring ------------------------------- */
   M.stats = {};
   M.reset = function () { list = []; cur = 0; lastEnd = 0; };
-  M.aim = function () { M.stats = {}; };
+  M.aim = function () { M.stats = {}; goodHits = 0; };
   M.chunk = function (S, x0, len) { if (M.enabled) spawn(x0, len); };
   M.physics = function (S, dt, b) {
     if (!list.length || S.mode !== 'flight') return;

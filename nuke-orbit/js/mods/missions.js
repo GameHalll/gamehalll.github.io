@@ -61,25 +61,25 @@
   /* ------------------------------ mission types ------------------------------ */
   // live: progress read from the current run every frame (single-run goals)
   const TYPES = {
-    dist:    { icon: '📏', live: true,  text: (m) => `Reach ${fmt(m.target)} m in one run`,
+    dist:    { icon: NO.ico('ruler'), live: true,  text: (m) => `Reach ${fmt(m.target)} m in one run`,
                gen: (R, f) => nice(Math.max(20, R.dist * f)), val: (S) => S.run.distance },
-    alt:     { icon: '🎈', live: true,  text: (m) => `Fly ${fmt(m.target)} m high`,
+    alt:     { icon: NO.ico('balloon'), live: true,  text: (m) => `Fly ${fmt(m.target)} m high`,
                gen: (R, f) => nice(Math.max(4, R.alt * f)), val: (S) => S.run.maxAlt },
-    bounce:  { icon: '🏀', live: true,  text: (m) => `Bounce ${m.target} times in one run`,
+    bounce:  { icon: NO.ico('ball'), live: true,  text: (m) => `Bounce ${m.target} times in one run`,
                gen: (R, f) => clamp(Math.round(R.bounces * f + (f > 1 ? 1 : 0)), 2, 40), val: (S) => S.bomb.bounces },
-    collect: { icon: '🪙', live: true,  text: (m) => `Grab ${fmt(m.target)} coins in one run`,
+    collect: { icon: NO.ico('coin'), live: true,  text: (m) => `Grab ${fmt(m.target)} coins in one run`,
                gen: (R, f) => nice(Math.max(6, R.collected * f)), val: (S) => S.run.collected },
-    speed:   { icon: '💨', live: true,  text: (m) => `Hit ${fmt(m.target)} km/h`,
+    speed:   { icon: NO.ico('wind'), live: true,  text: (m) => `Hit ${fmt(m.target)} km/h`,
                gen: (R, f) => nice(R.v0 * clamp(0.7 + f * 0.3, 0.8, 1.04)), val: (S) => S.run.topSpeed * 3.6 },
-    perfect: { icon: '🎯', live: false, text: (m) => `Land ${m.target} PERFECT launches`,
+    perfect: { icon: NO.ico('target'), live: false, text: (m) => `Land ${m.target} PERFECT launches`,
                gen: (R, f) => clamp(Math.round(1 + f * 2.2), 2, 4) },
-    combo:   { icon: '🔥', live: false, text: (m) => `${m.target} PERFECT launches in a row`,
+    combo:   { icon: NO.ico('fire'), live: false, text: (m) => `${m.target} PERFECT launches in a row`,
                gen: (R, f) => (f > 0.95 ? 3 : 2) },
-    world:   { icon: '🌍', live: false, text: (m) => `Launch ${m.target}x in ${envName(m.env)}`,
+    world:   { icon: NO.ico('globe'), live: false, text: (m) => `Launch ${m.target}x in ${envName(m.env)}`,
                gen: (R, f) => (f > 0.95 ? 3 : 2) },
-    total:   { icon: '🛣️', live: false, text: (m) => `Travel ${fmt(m.target)} m in total`,
+    total:   { icon: NO.ico('road'), live: false, text: (m) => `Travel ${fmt(m.target)} m in total`,
                gen: (R, f) => nice(Math.max(80, R.dist * (1.6 + f * 2))) },
-    orbit:   { icon: '🪐', live: true,  text: () => 'Break into ORBIT',
+    orbit:   { icon: NO.ico('planet'), live: true,  text: () => 'Break into ORBIT',
                gen: () => 1, val: (S) => (S.mode === 'orbit' || S.run.orbitLaps > 0 ? 1 : 0) },
   };
   function envName(id) { return NO.byId(NO.ENVIRONMENTS, id).name.replace('Green ', ''); }
@@ -319,8 +319,8 @@
     let pips = '';
     for (let i = 1; i <= 7; i++) pips += `<i class="${i <= (ds.can ? ds.day - 1 : ds.day) ? 'on' : ''}"></i>`;
     const daily = ds.can
-      ? `<button class="missions-daily can" id="missions-dailyBtn">🎁 DAY ${ds.day} · <i class="coin"></i>${fmt(ds.reward)}</button>`
-      : `<div class="missions-daily" title="Come back tomorrow for the next daily bonus">🔥 ${ds.streak}-day streak <span class="missions-pips">${pips}</span></div>`;
+      ? `<button class="missions-daily can" id="missions-dailyBtn">${NO.ico('gift')} DAY ${ds.day} · <i class="coin"></i>${fmt(ds.reward)}</button>`
+      : `<div class="missions-daily" title="Come back tomorrow for the next daily bonus">${NO.ico('fire')} ${ds.streak}-day streak <span class="missions-pips">${pips}</span></div>`;
     box.innerHTML = `<div class="missions-head"><div class="missions-title">MISSIONS${ready ? `<small>${ready} READY!</small>` : ''}</div>${daily}</div>
       <div class="missions-row">${list.map((m) => cardHTML(m, 'menu')).join('')}</div>`;
     bindClaims(box, 'menu');
@@ -338,7 +338,7 @@
       if (row) panel.insertBefore(box, row.nextSibling); else panel.appendChild(box);  // below the buttons so LAUNCH AGAIN stays visible
     }
     const list = ensure();
-    box.innerHTML = `<div class="missions-rhead"><span>🎯 MISSIONS</span><small>${st().done} COMPLETED</small></div>
+    box.innerHTML = `<div class="missions-rhead"><span>${NO.ico('target')} MISSIONS</span><small>${st().done} COMPLETED</small></div>
       <div class="missions-row">${list.map((m) => cardHTML(m, 'results')).join('')}</div>`;
     bindClaims(box, 'results');
   }
@@ -346,7 +346,7 @@
   function pop(title, text, reward) {
     const old = $('missions-toast'); if (old) old.remove();
     const el = document.createElement('div'); el.id = 'missions-toast';
-    el.innerHTML = `<div class="missions-tico">✅</div><div style="min-width:0"><b>${esc(title)}</b><span>${esc(text)}</span></div><em><i class="coin"></i>${fmt(reward)}</em>`;
+    el.innerHTML = `<div class="missions-tico">${NO.ico('check')}</div><div style="min-width:0"><b>${esc(title)}</b><span>${esc(text)}</span></div><em><i class="coin"></i>${fmt(reward)}</em>`;
     document.body.appendChild(el);
     clearTimeout(pop._t); pop._t = setTimeout(() => el.remove(), 2900);
   }

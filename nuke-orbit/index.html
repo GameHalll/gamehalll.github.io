@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100'%3E%3Ccircle r='48' fill='%23ffd23f'/%3E%3Cellipse rx='42' ry='15' transform='rotate(-24)' fill='none' stroke='%231f1b4d' stroke-width='8'/%3E%3Ccircle r='22' fill='%231f1b4d'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
 </head>
 <body>
   <canvas id="game"></canvas>
@@ -28,8 +28,8 @@
       <div class="chip"><b>POWER</b><span id="hudPower">–</span></div>
     </div>
     <div class="hud-bottom">
-      <button class="btn small ghost" id="btnHome" data-action="menu">☰ MENU</button>
-      <button class="btn small ghost" id="btnFast">⏩ FAST</button>
+      <button class="btn small ghost" id="btnHome" data-action="menu"><i data-ico="menu"></i>MENU</button>
+      <button class="btn small ghost" id="btnFast"><i data-ico="fast"></i>FAST</button>
     </div>
     <div id="aimHint">TAP / CLICK / <kbd>SPACE</kbd> TO LAUNCH!<small>Stop the meter in the white zone for a PERFECT launch</small></div>
   </div>
@@ -46,16 +46,16 @@
         <div class="stat"><b>COINS</b><span id="menuCoins"><i class="coin"></i>0</span></div>
         <div class="stat"><b>WORLD</b><span id="menuWorld">Countryside</span></div>
       </div>
-      <button class="btn play" data-action="play">▶ PLAY</button>
+      <button class="btn play" data-action="play"><i data-ico="play"></i>PLAY</button>
       <div class="menu-grid">
-        <button class="btn" data-action="shop">⚙️ UPGRADES<span class="badge hidden" id="shopBadge">!</span></button>
-        <button class="btn" data-action="chars">🧑‍✈️ CHARACTERS</button>
-        <button class="btn" data-action="bombs">💣 BOMBS</button>
-        <button class="btn" data-action="worlds">🌍 WORLDS</button>
+        <button class="btn" data-action="shop"><i data-ico="gear"></i>UPGRADES<span class="badge hidden" id="shopBadge">!</span></button>
+        <button class="btn" data-action="chars"><i data-ico="pilot"></i>CHARACTERS</button>
+        <button class="btn" data-action="bombs"><i data-ico="bomb"></i>BOMBS</button>
+        <button class="btn" data-action="worlds"><i data-ico="globe"></i>WORLDS</button>
       </div>
       <div class="menu-foot">
-        <button class="btn tiny ghost" id="btnMute">🔊 SOUND ON</button>
-        <button class="btn tiny ghost" data-action="reset">↺ RESET SAVE</button>
+        <button class="btn tiny ghost" id="btnMute"><i data-ico="sound"></i>SOUND ON</button>
+        <button class="btn tiny ghost" data-action="reset"><i data-ico="reset"></i>RESET SAVE</button>
       </div>
     </div>
   </section>
@@ -71,8 +71,8 @@
         <tr><td>Distance coins</td><td id="resDistCoins">0</td></tr>
         <tr><td>Collected coins</td><td id="resCollected">0</td></tr>
         <tr><td>Milestone bonus</td><td id="resMs">0</td></tr>
-        <tr id="resOrbitRow" class="hidden"><td>🪐 Orbit bonus</td><td id="resOrbit">0</td></tr>
-        <tr id="resModRow" class="hidden"><td id="resModLabel">⭐ Bonus</td><td id="resMod">0</td></tr>
+        <tr id="resOrbitRow" class="hidden"><td><i data-ico="planet"></i> Orbit bonus</td><td id="resOrbit">0</td></tr>
+        <tr id="resModRow" class="hidden"><td id="resModLabel"><i data-ico="star"></i> Bonus</td><td id="resMod">0</td></tr>
         <tr><td>World multiplier</td><td id="resMult">x1</td></tr>
         <tr class="total"><td>COINS EARNED</td><td id="resTotal">0</td></tr>
       </table>
@@ -84,9 +84,9 @@
       <div class="res-unlock hidden" id="resUnlock"></div>
       <div class="res-hint" id="resHint"></div>
       <div class="btn-row">
-        <button class="btn play" data-action="retry">↻ LAUNCH AGAIN</button>
-        <button class="btn" data-action="shop">⚙️ UPGRADES</button>
-        <button class="btn ghost" data-action="menu">☰ MENU</button>
+        <button class="btn play" data-action="retry"><i data-ico="retry"></i>LAUNCH AGAIN</button>
+        <button class="btn" data-action="shop"><i data-ico="gear"></i>UPGRADES</button>
+        <button class="btn ghost" data-action="menu"><i data-ico="menu"></i>MENU</button>
       </div>
     </div>
   </section>
@@ -99,7 +99,7 @@
         <div class="chip big"><i class="coin"></i><span class="coins-now">0</span></div>
       </header>
       <div class="shop-grid" id="shopGrid"></div>
-      <div class="btn-row"><button class="btn ghost" data-action="back">← BACK</button><button class="btn play" data-action="retry">▶ LAUNCH</button></div>
+      <div class="btn-row"><button class="btn ghost" data-action="back">← BACK</button><button class="btn play" data-action="retry"><i data-ico="play"></i>LAUNCH</button></div>
     </div>
   </section>
 
@@ -153,22 +153,23 @@
 
   <div id="toast" class="hidden"></div>
 
-  <script src="js/data.js?v=7"></script>
-  <script src="js/save.js?v=7"></script>
-  <script src="js/art.js?v=7"></script>
-  <script src="js/ui.js?v=7"></script>
-  <script src="js/game.js?v=7"></script>
-  <script src="js/mods.js?v=7"></script>
-  <script src="js/mods/boost.js?v=7"></script>
-  <script src="js/mods/hoops.js?v=7"></script>
-  <script src="js/mods/terrain.js?v=7"></script>
-  <script src="js/mods/sky.js?v=7"></script>
-  <script src="js/mods/powerups.js?v=7"></script>
-  <script src="js/mods/juice.js?v=7"></script>
-  <script src="js/mods/orbitplus.js?v=7"></script>
-  <script src="js/mods/ghost.js?v=7"></script>
-  <script src="js/mods/missions.js?v=7"></script>
-  <script src="js/mods/music.js?v=7"></script>
-  <script src="js/main.js?v=7"></script>
+  <script src="js/icons.js?v=8"></script>
+  <script src="js/data.js?v=8"></script>
+  <script src="js/save.js?v=8"></script>
+  <script src="js/art.js?v=8"></script>
+  <script src="js/ui.js?v=8"></script>
+  <script src="js/game.js?v=8"></script>
+  <script src="js/mods.js?v=8"></script>
+  <script src="js/mods/boost.js?v=8"></script>
+  <script src="js/mods/hoops.js?v=8"></script>
+  <script src="js/mods/terrain.js?v=8"></script>
+  <script src="js/mods/sky.js?v=8"></script>
+  <script src="js/mods/powerups.js?v=8"></script>
+  <script src="js/mods/juice.js?v=8"></script>
+  <script src="js/mods/orbitplus.js?v=8"></script>
+  <script src="js/mods/ghost.js?v=8"></script>
+  <script src="js/mods/missions.js?v=8"></script>
+  <script src="js/mods/music.js?v=8"></script>
+  <script src="js/main.js?v=8"></script>
 </body>
 </html>
