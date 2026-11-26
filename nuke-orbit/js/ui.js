@@ -54,6 +54,7 @@ NO.UI = (function () {
 
   function onMode(mode) {
     const hud = $('hud');
+    NO.Mods.emit('mode', mode);
     if (mode === 'menu') {
       hud.classList.add('hidden');
       stack.length = 0; show('menu', false);
@@ -78,7 +79,7 @@ NO.UI = (function () {
     if (S.mode === 'menu' || !S.run) return;
     const b = S.bomb;
     setText('hudDist', fmt(S.run.distance));
-    setText('hudCoins', fmt(S.mode === 'aim' ? data().coins : S.run.collected + S.run.milestoneCoins));
+    setText('hudCoins', fmt(S.mode === 'aim' ? data().coins : S.run.collected + S.run.milestoneCoins + (S.run.modCoins || 0)));
     if (S.mode === 'orbit') { setText('hudSpeed', fmt(S.orbit.speed * 3.6)); setText('hudAlt', 'ORBIT'); return; }
     setText('hudSpeed', fmt(Math.hypot(b.vx, b.vy) * 3.6));
     setText('hudAlt', fmt(Math.max(0, b.y - NO.CONFIG.BOMB_RADIUS)));
@@ -119,6 +120,7 @@ NO.UI = (function () {
     $('menuWorld').textContent = NO.byId(NO.ENVIRONMENTS, d.env).name.replace('Green ', '');
     $('shopBadge').classList.toggle('hidden', affordableUpgrades() === 0);
     $('btnMute').textContent = d.muted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
+    NO.Mods.emit('menu');
   }
 
   /* -------------------------- upgrade cards ---------------------------- */
@@ -295,6 +297,9 @@ NO.UI = (function () {
     $('resOrbit').textContent = '+' + fmt(r.orbitCoins) + ' (' + r.orbitLaps + ' lap' + (r.orbitLaps > 1 ? 's' : '') + ')';
     $('resOrbitHint').innerHTML = r.orbitLaps ? '🪐 You reached ORBIT!' :
       `🪐 Orbit needs <b>${fmt(NO.CONFIG.ORBIT_VX * 3.6)} km/h</b> at the top of the arc · you had ${fmt(r.apexVx * 3.6)} km/h`;
+    $('resModRow').classList.toggle('hidden', !r.modCoins);
+    $('resMod').textContent = '+' + fmt(r.modCoins || 0);
+    $('resModLabel').textContent = (r.modRows && r.modRows.length) ? '⭐ ' + r.modRows.map((x) => x.label).join(' · ') : '⭐ Bonus';
     $('resMult').textContent = 'x' + r.mult;
     $('resBest').textContent = fmtDist(r.best);
     $('resCoins').textContent = fmt(data().coins);

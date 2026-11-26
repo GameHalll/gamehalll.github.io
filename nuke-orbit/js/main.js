@@ -16,6 +16,7 @@
       if (e.repeat) return;
       NO.Audio.init();
       if (S.mode === 'aim') NO.Game.triggerLaunch();
+      else if (S.mode === 'flight' || S.mode === 'orbit') NO.Game.tapDown(null);
       else if (S.mode === 'results' && NO.UI.current === 'results') NO.UI.action('retry');
       else if (S.mode === 'menu' && NO.UI.current === 'menu') NO.UI.action('play');
     } else if (e.code === 'KeyF' && S.mode === 'flight') {
@@ -26,6 +27,7 @@
     }
   });
   window.addEventListener('keyup', (e) => {
+    if (e.code === 'Space' || e.code === 'Enter') NO.Game.tapUp();
     if (e.code === 'KeyF') { NO.Game.setFast(false); document.getElementById('btnFast').classList.remove('active'); }
   });
 })();

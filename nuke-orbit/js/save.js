@@ -20,6 +20,7 @@ NO.Save = (function () {
     launches: 0,
     totalDistance: 0,
     muted: false,
+    mods: {},
   });
 
   let data = defaults();
@@ -33,8 +34,10 @@ NO.Save = (function () {
         data = Object.assign(d, parsed);
         data.up = Object.assign(d.up, parsed.up || {});
         data.bestByEnv = Object.assign({}, parsed.bestByEnv || {});
+        data.mods = (parsed.mods && typeof parsed.mods === 'object') ? parsed.mods : {};
       }
     } catch (e) { data = defaults(); }
+    fillUpgrades();
     return data;
   }
 
@@ -42,7 +45,9 @@ NO.Save = (function () {
     try { localStorage.setItem(NO.CONFIG.SAVE_KEY, JSON.stringify(data)); } catch (e) { /* storage blocked: keep playing */ }
   }
 
-  function reset() { data = defaults(); save(); return data; }
+  function reset() { data = defaults(); fillUpgrades(); save(); return data; }
+  /* upgrades added by mods start at level 0 */
+  function fillUpgrades() { for (const u of NO.UPGRADES) if (!(data.up[u.id] >= 0)) data.up[u.id] = 0; }
 
   return { load, save, reset, get data() { return data; } };
 })();

@@ -59,6 +59,7 @@ NO.Game = (function () {
     S.timeScale = 1;
     S.env = NO.Save.data.env;
     S.phys = NO.physicsFor(NO.Save.data.up);
+    NO.Mods.emit('reset', S);
   }
 
   /* ------------------------------ modes -------------------------------- */
@@ -67,8 +68,9 @@ NO.Game = (function () {
   function startAim() {
     resetScene();
     S.mode = 'aim'; S.powerT = Math.random() * 3;
-    S.run = { collected: 0, gems: 0, milestones: [], milestoneCoins: 0, nextMs: 0, distance: 0, topSpeed: 0, maxAlt: 0, apexChecked: false, apexVx: 0, orbitLaps: 0, orbitCoins: 0 };
+    S.run = { collected: 0, gems: 0, milestones: [], milestoneCoins: 0, nextMs: 0, distance: 0, topSpeed: 0, maxAlt: 0, apexChecked: false, apexVx: 0, orbitLaps: 0, orbitCoins: 0, modCoins: 0, modRows: [] };
     S.orbit = null; S.reentry = 0;
+    NO.Mods.emit('aim', S);
     NO.UI.onMode('aim');
   }
 
@@ -101,6 +103,7 @@ NO.Game = (function () {
     }
     popup(b.x + 0.5, b.y + 1.2, ['POW!', 'WHAM!', 'BONK!', 'KAPOW!'][Math.floor(Math.random() * 4)], '#fff', 1.2, true);
     S.mode = 'flight';
+    NO.Mods.emit('launch', S, b);
     NO.UI.onMode('flight');
   }
 
@@ -115,6 +118,7 @@ NO.Game = (function () {
       const d = Math.exp(-P.drag * dt);
       b.vx *= d; b.vy *= d;
       b.x += b.vx * dt; b.y += b.vy * dt;
+      NO.Mods.emit('physics', S, dt, b);
       if (b.y <= R) {
         b.y = R;
         const impact = -b.vy;
@@ -122,11 +126,13 @@ NO.Game = (function () {
         b.vx *= P.keepX;
         b.bounces++;
         onBounce(impact);
+        NO.Mods.emit('bounce', S, impact, b);
         if (b.vy < C.MIN_BOUNCE_VY) { b.rolling = true; b.vy = 0; }
       }
     } else {
       b.vx -= (P.rollFriction + P.rollDrag * b.vx) * dt;
-      if (b.vx <= C.STOP_SPEED) { b.vx = 0; b.stopped = true; }
+      NO.Mods.emit('physics', S, dt, b);
+      if (b.rolling && b.vx <= C.STOP_SPEED) { b.vx = 0; b.stopped = true; }
       b.x += b.vx * dt;
       b.angle += (b.vx * dt) / R * 0.5;
     }
@@ -179,6 +185,7 @@ NO.Game = (function () {
         }
       }
       if (Math.random() < 0.08) S.coins.push({ x: x0 + len * 0.6, y: 2 + Math.random() * apex * 0.8, gem: true, got: false, ph: 0 });
+      NO.Mods.emit('chunk', S, S.genUntil, len, apex);
       S.genUntil += len;
     }
   }
@@ -358,6 +365,7 @@ NO.Game = (function () {
     }
     if (S.mode === 'launch' || S.mode === 'results') { S.shout && (S.shout.t += rawDt); }
 
+    NO.Mods.emit('update', S, dt, rawDt);
     S.flash = Math.max(0, S.flash - rawDt * 1.5);
     updateParticles(dt);
     updateFlyers(rawDt);
@@ -400,6 +408,7 @@ NO.Game = (function () {
   function updateOrbit(dt) {
     const O = S.orbit, run = S.run;
     O.t += dt;
+    NO.Mods.emit('orbitUpdate', S, dt);
     O.prog += dt / orbitLapTime();
     if (O.phase === 'loop' && O.prog >= O.laps + 1) {
       O.laps++;
@@ -477,6 +486,7 @@ NO.Game = (function () {
       S.particles.push({ k: 'debris', x: b.x, y: 0.5, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0, max: 1.6 + Math.random(), size: 0.15 + Math.random() * 0.25, color: ['#ff6b35', '#ffd23f', '#6b4f3a', '#444'][i % 4] });
     }
     popup(b.x, 9, ['KA-BOOM!', 'NUKED!', 'BIG BADA BOOM!', 'OOPSIE!'][Math.floor(Math.random() * 4)], '#ffd23f', 2.0, true);
+    NO.Mods.emit('boom', S);
     NO.UI.onMode('boom');
   }
 
@@ -484,7 +494,7 @@ NO.Game = (function () {
     const d = NO.Save.data, run = S.run;
     const env = NO.byId(NO.ENVIRONMENTS, S.env);
     const distCoins = Math.floor(run.distance * C.COINS_PER_METER);
-    const base = distCoins + run.collected + run.milestoneCoins + run.orbitCoins;
+    const base = distCoins + run.collected + run.milestoneCoins + run.orbitCoins + (run.modCoins || 0);
     const total = Math.round(base * env.mult);
     const prevBest = d.best;
     const isRecord = run.distance > prevBest + 0.01;
@@ -498,7 +508,10 @@ NO.Game = (function () {
     NO.Save.save();
     if (isRecord && prevBest > 0) NO.Audio.record();
     S.mode = 'results';
-    NO.UI.showResults({ distance: run.distance, distCoins, collected: run.collected, gems: run.gems, milestoneCoins: run.milestoneCoins, mult: env.mult, total, best: d.best, isRecord, prevBest, newWorlds, topSpeed: run.topSpeed, maxAlt: run.maxAlt, bounces: S.bomb.bounces, perfect: S.perfect, orbitLaps: run.orbitLaps, orbitCoins: run.orbitCoins, apexVx: run.apexVx });
+    const res = { distance: run.distance, distCoins, collected: run.collected, gems: run.gems, milestoneCoins: run.milestoneCoins, mult: env.mult, total, best: d.best, isRecord, prevBest, newWorlds, topSpeed: run.topSpeed, maxAlt: run.maxAlt, bounces: S.bomb.bounces, perfect: S.perfect, orbitLaps: run.orbitLaps, orbitCoins: run.orbitCoins, apexVx: run.apexVx, modCoins: run.modCoins || 0, modRows: run.modRows || [] };
+    NO.Mods.emit('results', S, res);
+    NO.UI.showResults(res);
+    NO.Mods.emit('resultsShown', res);
   }
 
   /* ------------------------------ render ------------------------------- */
@@ -506,6 +519,7 @@ NO.Game = (function () {
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     if (S.mode === 'orbit') {
       drawOrbitView();
+      NO.Mods.emit('renderOrbit', ctx, S, orbitGeom());
       drawFlyers();
       drawVignette();
       if (S.flash > 0) { ctx.fillStyle = `rgba(255,250,220,${S.flash * 0.9})`; ctx.fillRect(0, 0, W, H); }
@@ -516,6 +530,7 @@ NO.Game = (function () {
     const ox = sh > 0 ? (Math.random() - 0.5) * sh * 14 : 0, oy = sh > 0 ? (Math.random() - 0.5) * sh * 14 : 0;
     A.drawWorldBack(ctx, S.env, v);
     ctx.save(); ctx.translate(ox, oy);
+    NO.Mods.emit('renderBack', ctx, v, S);
 
     // coins (behind ground props looks odd; draw before ground front props but after sky)
     drawCoins(v);
@@ -523,6 +538,7 @@ NO.Game = (function () {
 
     // launch tee + character
     drawLaunchSite(v);
+    NO.Mods.emit('renderWorld', ctx, v, S);
 
     // particles behind bomb
     drawParticles(v, false);
@@ -542,10 +558,12 @@ NO.Game = (function () {
 
     drawParticles(v, true);
     drawPopups(v);
+    NO.Mods.emit('renderFront', ctx, v, S);
     drawShout(v);
     drawForeground(v);
     ctx.restore();
     drawVignette();
+    NO.Mods.emit('renderHUD', ctx, S, W, H);
 
     // speed lines
     if (S.mode === 'flight') {
@@ -971,7 +989,14 @@ NO.Game = (function () {
   canvas.addEventListener('pointerdown', (e) => {
     NO.Audio.init();
     if (S.mode === 'aim') { e.preventDefault(); triggerLaunch(); }
+    else if (S.mode === 'flight' || S.mode === 'orbit') { e.preventDefault(); tapDown(e); }
   });
+  window.addEventListener('pointerup', () => tapUp());
+  window.addEventListener('pointercancel', () => tapUp());
+  window.addEventListener('blur', () => tapUp());
+  let tapping = false;
+  function tapDown(e) { if (tapping) return; tapping = true; S.tapping = true; NO.Mods.emit('tap', S, e || null); }
+  function tapUp() { if (!tapping) return; tapping = false; S.tapping = false; NO.Mods.emit('tapEnd', S); }
 
   function boot() {
     resetScene();
@@ -980,7 +1005,18 @@ NO.Game = (function () {
   }
 
   return {
-    boot, startAim, toMenu, triggerLaunch, setFast,
+    boot, startAim, toMenu, triggerLaunch, setFast, tapDown, tapUp,
+    /* helpers for feature mods (see js/mods.js) */
+    api: {
+      get S() { return S; }, get ctx() { return ctx; }, get canvas() { return canvas; },
+      get W() { return W; }, get H() { return H; }, get PPM() { return PPM_BASE; },
+      view, popup, gravity, orbitGeom, orbitPos,
+      addCoins(n, label) {
+        if (!S.run || !(n > 0)) return;
+        n = Math.round(n); S.run.modCoins = (S.run.modCoins || 0) + n;
+        if (label) { const row = S.run.modRows.find((r) => r.label === label); if (row) row.coins += n; else S.run.modRows.push({ label, coins: n }); }
+      },
+    },
     // test hook: advance the simulation without requestAnimationFrame (e.g. hidden tab)
     debugStep(seconds) { const n = Math.round(seconds * 60); for (let i = 0; i < n; i++) update(1 / 60); render(); return S.mode; },
     get state() { return S; },

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100'%3E%3Ccircle r='48' fill='%23ffd23f'/%3E%3Cellipse rx='42' ry='15' transform='rotate(-24)' fill='none' stroke='%231f1b4d' stroke-width='8'/%3E%3Ccircle r='22' fill='%231f1b4d'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=7" />
 </head>
 <body>
   <canvas id="game"></canvas>
@@ -72,6 +72,7 @@
         <tr><td>Collected coins</td><td id="resCollected">0</td></tr>
         <tr><td>Milestone bonus</td><td id="resMs">0</td></tr>
         <tr id="resOrbitRow" class="hidden"><td>🪐 Orbit bonus</td><td id="resOrbit">0</td></tr>
+        <tr id="resModRow" class="hidden"><td id="resModLabel">⭐ Bonus</td><td id="resMod">0</td></tr>
         <tr><td>World multiplier</td><td id="resMult">x1</td></tr>
         <tr class="total"><td>COINS EARNED</td><td id="resTotal">0</td></tr>
       </table>
@@ -152,11 +153,22 @@
 
   <div id="toast" class="hidden"></div>
 
-  <script src="js/data.js?v=3"></script>
-  <script src="js/save.js?v=3"></script>
-  <script src="js/art.js?v=3"></script>
-  <script src="js/ui.js?v=3"></script>
-  <script src="js/game.js?v=3"></script>
-  <script src="js/main.js?v=3"></script>
+  <script src="js/data.js?v=7"></script>
+  <script src="js/save.js?v=7"></script>
+  <script src="js/art.js?v=7"></script>
+  <script src="js/ui.js?v=7"></script>
+  <script src="js/game.js?v=7"></script>
+  <script src="js/mods.js?v=7"></script>
+  <script src="js/mods/boost.js?v=7"></script>
+  <script src="js/mods/hoops.js?v=7"></script>
+  <script src="js/mods/terrain.js?v=7"></script>
+  <script src="js/mods/sky.js?v=7"></script>
+  <script src="js/mods/powerups.js?v=7"></script>
+  <script src="js/mods/juice.js?v=7"></script>
+  <script src="js/mods/orbitplus.js?v=7"></script>
+  <script src="js/mods/ghost.js?v=7"></script>
+  <script src="js/mods/missions.js?v=7"></script>
+  <script src="js/mods/music.js?v=7"></script>
+  <script src="js/main.js?v=7"></script>
 </body>
 </html>
